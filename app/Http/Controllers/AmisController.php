@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\User;
 use App\Amis;
 use App\AmisEvent;
+use App\JoinAmisEvent;
 
 class AmisController extends Controller
 {
@@ -30,12 +31,13 @@ class AmisController extends Controller
                     'id_ami' => $id
                 ]);
 
-                $amis_amis = User::query()->select('name', 'id')
-                    ->where('id', '=', $id)->get()->toArray();
+                $amis_amis = Amis::query()->select('name', 'users.id as id_ami')
+                    ->join('users', 'users.id', '=', 'id_ami')
+                    ->where('amis.id', '=', $id_ami[0]["id"])->get()->toArray();
 
                 broadcast(new AmisEvent($amis_amis, $id_ami[0]["id"]));
 
-                $amis = Amis::query()->select('name', 'users.id')
+                $amis = Amis::query()->select('name', 'users.id as id_ami')
                     ->join('users', 'users.id', '=', 'id_ami')
                     ->where('amis.id', '=', $id)->get()->toArray();
 
@@ -43,7 +45,7 @@ class AmisController extends Controller
                     "id" => Auth::user()->id,
                     "friend_code" => $friend_code,
                     "messageNON" => "Ami ajouté",
-                    "amis" => json_encode($amis)
+                    "amis" => $amis
                 ]);
             }
             else {
@@ -62,5 +64,18 @@ class AmisController extends Controller
                 "messageNON" => "error"
             ]);
         }
+    }
+
+    public function joinFriend(Request $request)
+    {
+        $id_join = $request->id_join;
+
+        if(!isset($request->broadcast))
+            broadcast(new JoinAmisEvent($id_join, Auth::user()->id));
+
+        return view('partie',[
+            "id_join" => $id_join,
+            "id" => Auth::user()->id,
+        ]);
     }
 }

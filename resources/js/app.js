@@ -27,14 +27,24 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({
-    el: '#app',
+const home = new Vue({
+    el: '#home',
 
     data: {
         id,
-        id_join: '',
         idFriend: '',
-        amisUpdate: []
+        amis,
+    },   
+
+    methods:{
+    }   
+});
+
+const partie = new Vue({
+    el: '#partie',
+
+    data: {
+        id
     },   
 
     methods:{
@@ -47,8 +57,14 @@ Pusher.logToConsole = true;
 var pusher = new Pusher('4c1d236d405c41c95c80', {
     cluster: 'eu'
 });
-var channel = pusher.subscribe(`updateAmis.${app.id}`);
 
+var channel = pusher.subscribe(`updateAmis.${home.id}`);
 channel.bind('AmisEvent', function(data) {
-    app.amisUpdate.push(data.amis);
+    home.amis = (data.amis);
+});
+
+var channel2 = pusher.subscribe(`joinAmis.${home.id}`);
+channel2.bind('JoinAmisEvent', function(data) {
+    console.log("caca");
+    window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami;
 });

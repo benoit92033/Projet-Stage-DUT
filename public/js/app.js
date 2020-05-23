@@ -55533,13 +55533,19 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-var app = new Vue({
-  el: '#app',
+var home = new Vue({
+  el: '#home',
   data: {
     id: id,
-    id_join: '',
     idFriend: '',
-    amisUpdate: []
+    amis: amis
+  },
+  methods: {}
+});
+var partie = new Vue({
+  el: '#partie',
+  data: {
+    id: id
   },
   methods: {}
 });
@@ -55548,9 +55554,14 @@ Pusher.logToConsole = true;
 var pusher = new Pusher('4c1d236d405c41c95c80', {
   cluster: 'eu'
 });
-var channel = pusher.subscribe("updateAmis.".concat(app.id));
+var channel = pusher.subscribe("updateAmis.".concat(home.id));
 channel.bind('AmisEvent', function (data) {
-  app.amisUpdate.push(data.amis);
+  home.amis = data.amis;
+});
+var channel2 = pusher.subscribe("joinAmis.".concat(home.id));
+channel2.bind('JoinAmisEvent', function (data) {
+  console.log("caca");
+  window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami;
 });
 
 /***/ }),

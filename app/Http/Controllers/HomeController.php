@@ -35,7 +35,7 @@ class HomeController extends Controller
         return view('home', [
             "id" => Auth::user()->id,
             "friend_code" => $friend_code,
-            "amis" => json_encode($amis)
+            "amis" => $amis
         ]);
     }
 }
