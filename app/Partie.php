@@ -4,11 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Amis extends Model
+class Partie extends Model
 {
-    protected $table = "amis";
+    protected $table = "partie";
     protected $primaryKey = ['id', 'id_ami'];
-    protected $fillable = ['id', 'id_ami'];
+    protected $fillable = ['id', 'id_ami', 'tour'];
     public $timestamps = false;
-    public $incrementing = false;
 }

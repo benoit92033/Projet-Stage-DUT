@@ -19,7 +19,7 @@ window.Vue = require('vue');
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+//Vue.component('home', require('./components/Home.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -29,4 +29,26 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 const app = new Vue({
     el: '#app',
+
+    data: {
+        id,
+        id_join: '',
+        idFriend: '',
+        amisUpdate: []
+    },   
+
+    methods:{
+    }   
+});
+
+window.Pusher = require('pusher-js');
+Pusher.logToConsole = true;
+
+var pusher = new Pusher('4c1d236d405c41c95c80', {
+    cluster: 'eu'
+});
+var channel = pusher.subscribe(`updateAmis.${app.id}`);
+
+channel.bind('AmisEvent', function(data) {
+    app.amisUpdate.push(data.amis);
 });
