@@ -41,6 +41,7 @@
                                 <input type="submit" value="Ajouter">
                             </p>
                         </form>
+                        <p class="text-danger">{{$messageErreur ?? ''}}</p>
                     </div>
                 </div>
                 <div class="card">
@@ -66,5 +67,7 @@
     <script>
         window.id = @json($id);
         window.amis = @json($amis);
+        window.type_partie = null;
+        window.game = null;
     </script>
 @endsection

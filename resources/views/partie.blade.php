@@ -2,33 +2,73 @@
 
 @section('content')
     <div id="partie" class="container">
-        <h1>{{$id}} - VS - {{$id_join}}</h1>
+        <h1>Moi : {{$id}} - VS - Lui : {{$id_join}}</h1>
         <div class="row">
             <div class="col-8">
-                <div class="card">
-                    <div class="card-header">Puissance 4</div>
 
-                    <div class="card-body">
-                        <p>Description du jeu + images</p>
-                        <button>Jouer</button>
+
+
+                <!-- Jeux -->
+                <div v-if="!type_partie">
+                    <div class="card">
+                        <div class="card-header">Puissance 4</div>
+
+                        <div class="card-body">
+                            <p>Description du jeu + images</p>
+                            <button v-on:click="play({{$id_join}})">Jouer</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Morpion</div>
+
+                        <div class="card-body">
+                            <p>Description du jeu + images</p>
+                            <button v-on:click="play({{$id_join}})">Jouer</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Bataille navale</div>
+
+                        <div class="card-body">
+                            <p>Description du jeu + images</p>
+                            <button v-on:click="play({{$id_join}})">Jouer</button>
+                        </div>
                     </div>
                 </div>
-                <div class="card">
+                <!-- Jeux -->
+
+                <!-- Morpion -->
+                <div class="card" v-if="type_partie == 'morpion'">
                     <div class="card-header">Morpion</div>
 
-                    <div class="card-body">
-                        <p>Description du jeu + images</p>
-                        <button>Jouer</button>
+                    <div v-if="game.winner == null" class="card-body">
+                        <div  v-for="(n, index) in game.pions" :key="n" style="display: inline-block;">
+                            <form v-if="game.tour != id">
+                                <button v-if="n == id" disabled class="bg-success morpion" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="n == {{$id_join}}" disabled class="bg-primary morpion" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="!n" disabled class="bg-secondary morpion" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                            </form>
+                            <form v-else action="/morpion" method="post">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                <input type="hidden" name="id_ami" value="{{$id_join}}">
+                                <input type="hidden" name="index" :value="index">
+                                <input type="hidden" name="partie" :value="JSON.stringify(game)">
+                                <button v-if="n == id" type="submit" class="bg-success morpion" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="n == {{$id_join}}" type="submit" class="bg-primary morpion" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="!n"  type="submit" class="bg-secondary morpion" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div v-else class="card-body">
+                        <p>Winner : @{{game.winner}}</p>
+                        <button v-on:click="play({{$id_join}})">Rejouer</button>
+                        <button v-on:click="">Quitter</button>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">Bataille navale</div>
+                <!-- Morpion -->
 
-                    <div class="card-body">
-                        <p>Description du jeu + images</p>
-                        <button>Jouer</button>
-                    </div>
-                </div>
+
+
             </div>
             <div class="col">
                 <div class="card">
@@ -50,5 +90,8 @@
     </div>   
     <script>
         window.id = @json($id);
+        window.game = @json($game);
+        window.type_partie = @json($type_partie);
+        window.amis = null;
     </script>    
 @endsection

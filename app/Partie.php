@@ -2,12 +2,33 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Partie extends Model
+class Partie
 {
-    protected $table = "partie";
-    protected $primaryKey = ['id', 'id_ami'];
-    protected $fillable = ['id', 'id_ami', 'tour'];
-    public $timestamps = false;
+    public $tour;
+    public $pions;
+    public $winner;
+    public $lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
+
+    public function __construct($tour, $pions){
+        $this->tour = $tour;
+        $this->pions = $pions;
+        $this->winner = null;
+    }
+
+    /*public function calculateWinner() {
+        foreach($this->lines as $line) {
+            if ($this->pions[0] && $this->pions[0] === $this->pions[1] && $this->pions[0] === $this->pions[2])
+                $this->winner = $this->pions[0];
+        }
+        return;
+    }*/
 }

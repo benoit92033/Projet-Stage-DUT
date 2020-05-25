@@ -33,26 +33,28 @@ const home = new Vue({
     data: {
         id,
         idFriend: '',
-        amis,
-    },   
-
-    methods:{
-    }   
+        amis
+    }
 });
 
 const partie = new Vue({
     el: '#partie',
 
     data: {
-        id
+        id,
+        type_partie,
+        game
     },   
 
     methods:{
+        play(id_join){
+            window.location.href = "/morpion?id_ami=" + id_join;
+        }
     }   
 });
 
 window.Pusher = require('pusher-js');
-Pusher.logToConsole = true;
+//Pusher.logToConsole = true;
 
 var pusher = new Pusher('4c1d236d405c41c95c80', {
     cluster: 'eu'
@@ -65,6 +67,11 @@ channel.bind('AmisEvent', function(data) {
 
 var channel2 = pusher.subscribe(`joinAmis.${home.id}`);
 channel2.bind('JoinAmisEvent', function(data) {
-    console.log("caca");
     window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami;
+});
+
+var channel3 = pusher.subscribe(`game.${home.id}`);
+channel3.bind('GameEvent', function(data) {
+    partie.game = (data.partie);
+    partie.type_partie = 'morpion'
 });

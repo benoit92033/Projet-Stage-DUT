@@ -55539,18 +55539,23 @@ var home = new Vue({
     id: id,
     idFriend: '',
     amis: amis
-  },
-  methods: {}
+  }
 });
 var partie = new Vue({
   el: '#partie',
   data: {
-    id: id
+    id: id,
+    type_partie: type_partie,
+    game: game
   },
-  methods: {}
+  methods: {
+    play: function play(id_join) {
+      window.location.href = "/morpion?id_ami=" + id_join;
+    }
+  }
 });
-window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
-Pusher.logToConsole = true;
+window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); //Pusher.logToConsole = true;
+
 var pusher = new Pusher('4c1d236d405c41c95c80', {
   cluster: 'eu'
 });
@@ -55560,8 +55565,12 @@ channel.bind('AmisEvent', function (data) {
 });
 var channel2 = pusher.subscribe("joinAmis.".concat(home.id));
 channel2.bind('JoinAmisEvent', function (data) {
-  console.log("caca");
   window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami;
+});
+var channel3 = pusher.subscribe("game.".concat(home.id));
+channel3.bind('GameEvent', function (data) {
+  partie.game = data.partie;
+  partie.type_partie = 'morpion';
 });
 
 /***/ }),

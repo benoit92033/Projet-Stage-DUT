@@ -16,11 +16,11 @@ class AmisController extends Controller
         $id = Auth::user()->id;
         $friend_code = Auth::user()->friend_code;
 
-        if ($request->idFriend){
-            $id_ami = User::query()->select('id')
-                ->where('friend_code', '=', $request->idFriend)->get()->toArray();
+        $id_ami = User::query()->select('id')
+            ->where('friend_code', '=', $request->idFriend)->get()->toArray();
 
-            if ($id && $id_ami[0]["id"]){
+        if ($id && $id_ami){
+            try {
                 Amis::create([
                     'id' => $id,
                     'id_ami' => $id_ami[0]["id"]
@@ -30,38 +30,37 @@ class AmisController extends Controller
                     'id' => $id_ami[0]["id"],
                     'id_ami' => $id
                 ]);
-
-                $amis_amis = Amis::query()->select('name', 'users.id as id_ami')
-                    ->join('users', 'users.id', '=', 'id_ami')
-                    ->where('amis.id', '=', $id_ami[0]["id"])->get()->toArray();
-
-                broadcast(new AmisEvent($amis_amis, $id_ami[0]["id"]));
-
-                $amis = Amis::query()->select('name', 'users.id as id_ami')
-                    ->join('users', 'users.id', '=', 'id_ami')
-                    ->where('amis.id', '=', $id)->get()->toArray();
-
-                return view('home', [
-                    "id" => Auth::user()->id,
-                    "friend_code" => $friend_code,
-                    "messageNON" => "Ami ajouté",
-                    "amis" => $amis
-                ]);
+            } catch(\Exception $e) {
+                $messageErreur = "Ami déjà ajouté !";
             }
-            else {
-                return view('home', [
-                    "id" => Auth::user()->id,
-                    "friend_code" => $friend_code,
-                    "messageNON" => "Code ami non valide"
-                ]);
-            }
-        }
 
-        else {
+            $amis_amis = Amis::query()->select('name', 'users.id as id_ami')
+                ->join('users', 'users.id', '=', 'id_ami')
+                ->where('amis.id', '=', $id_ami[0]["id"])->get()->toArray();
+
+            broadcast(new AmisEvent($amis_amis, $id_ami[0]["id"]));
+
+            $amis = Amis::query()->select('name', 'users.id as id_ami')
+                ->join('users', 'users.id', '=', 'id_ami')
+                ->where('amis.id', '=', $id)->get()->toArray();
+
             return view('home', [
                 "id" => Auth::user()->id,
                 "friend_code" => $friend_code,
-                "messageNON" => "error"
+                "messageErreur" => $messageErreur ?? '',
+                "amis" => $amis
+            ]);
+        }
+        else {
+            $amis = Amis::query()->select('name', 'users.id as id_ami')
+                ->join('users', 'users.id', '=', 'id_ami')
+                ->where('amis.id', '=', $id)->get()->toArray();
+
+            return view('home', [
+                "id" => Auth::user()->id,
+                "friend_code" => $friend_code,
+                "messageErreur" => "Code ami non valide",
+                "amis" => $amis
             ]);
         }
     }
@@ -76,6 +75,9 @@ class AmisController extends Controller
         return view('partie',[
             "id_join" => $id_join,
             "id" => Auth::user()->id,
+            "partie" => '',
+            "type_partie" => '',
+            "game" => ''
         ]);
     }
 }

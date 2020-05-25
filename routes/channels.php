@@ -17,6 +17,6 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-/*Broadcast::channel('updateAmis.{id}', function ($user, $id) {
-    return $user->id === User::findOrNew($id)->id;
+/*Broadcast::channel('private-game.{id}', function ($user, $id) {
+    return $user->id === $id;
 });*/
