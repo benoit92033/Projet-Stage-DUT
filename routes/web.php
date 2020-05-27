@@ -26,5 +26,6 @@ Route::get('/joinFriend', 'AmisController@joinFriend');
 
 Route::post('/morpion', 'GameController@morpion');
 Route::get('/morpion', 'GameController@morpion');
-Route::get('/puissance', 'GameController@puissance');
-Route::get('/bataille', 'GameController@bataille');
+Route::post('/puissance4', 'GameController@puissance4');
+Route::get('/puissance4', 'GameController@puissance4');
+Route::get('/batailleNavale', 'GameController@batailleNavale');

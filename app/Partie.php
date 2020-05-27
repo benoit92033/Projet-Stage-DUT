@@ -7,7 +7,8 @@ class Partie
     public $tour;
     public $pions;
     public $winner;
-    public $lines = [
+    public $type_partie;
+    /*public $lines = [
         [0, 1, 2],
         [3, 4, 5],
         [6, 7, 8],
@@ -16,12 +17,13 @@ class Partie
         [2, 5, 8],
         [0, 4, 8],
         [2, 4, 6]
-    ];
+    ];*/
 
-    public function __construct($tour, $pions){
+    public function __construct($tour, $pions, $type_partie){
         $this->tour = $tour;
         $this->pions = $pions;
         $this->winner = null;
+        $this->type_partie = $type_partie;
     }
 
     /*public function calculateWinner() {

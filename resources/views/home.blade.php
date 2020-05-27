@@ -67,7 +67,6 @@
     <script>
         window.id = @json($id);
         window.amis = @json($amis);
-        window.type_partie = null;
         window.game = null;
     </script>
 @endsection

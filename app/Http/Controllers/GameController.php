@@ -17,7 +17,7 @@ class GameController extends Controller
 
         if (!$request->partie){
             $pions = array_fill(0, 9, null);
-            $partie = new Partie($id, $pions);
+            $partie = new Partie($id, $pions, 'morpion');
         }
 
         else {
@@ -53,18 +53,46 @@ class GameController extends Controller
 
         return view('partie', [
             "game" => $partie,
-            "type_partie" => "morpion",
             "id_join" => $id_ami,
             "id" => $id
         ]);
     }
 
-    public function puissance(Request $request)
+    public function puissance4(Request $request)
     {
+        $id = Auth::user()->id;
+        $id_ami = $request->id_ami;
 
+        if (!$request->partie){
+            $colonnes = array_fill(0, 7, array());
+            foreach($colonnes as $key => $colonne){
+                $colonnes[$key] = array_fill(0, 6, null);
+            }
+            $partie = new Partie($id, $colonnes, 'puissance4');
+        }
+
+        else {
+            $partie = $request->partie;
+            $partie = json_decode($partie);
+            foreach($partie->pions[$request->index] as $key => $colonne){
+                if (!$colonne){
+                    $partie->pions[$request->index][$key] = $id;
+                    break;
+                }
+            }
+            $partie->tour = $id_ami;
+        }
+
+        broadcast(new GameEvent($partie, $id_ami));
+
+        return view('partie', [
+            "game" => $partie,
+            "id_join" => $id_ami,
+            "id" => $id
+        ]);
     }
 
-    public function bataille(Request $request)
+    public function batailleNavale(Request $request)
     {
         
     }
