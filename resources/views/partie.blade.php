@@ -63,7 +63,7 @@
                     </div>
                     <div v-else class="card-body">
                         <p>Winner : @{{game.winner}}</p>
-                        <button v-on:click="play({{$id_join}})">Rejouer</button>
+                        <button v-on:click="play({{$id_join}}, 'morpion')">Rejouer</button>
                         <form action="/joinFriend">
                             <p>
                                 <input type="hidden" name="id_join" value="{{$id_join}}" />
@@ -84,8 +84,8 @@
                         <div  v-for="(colonne, index) in game.pions" :key="colonne" style="display: inline-block;">
                             <div  v-for="n in colonne" :key="n">
                                 <form v-if="game.tour != id">
-                                    <button v-if="n == id" disabled class="bg-success" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-if="n == {{$id_join}}" disabled class="bg-primary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == id" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == {{$id_join}}" disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
                                     <button v-if="!n" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
                                 </form>
                                 <form v-else action="/puissance4" method="post">
@@ -93,8 +93,8 @@
                                     <input type="hidden" name="id_ami" value="{{$id_join}}">
                                     <input type="hidden" name="index" :value="index">
                                     <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                    <button v-if="n == id" disabled class="bg-success" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-if="n == {{$id_join}}" disabled class="bg-primary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == id" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == {{$id_join}}" disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
                                     <button v-if="!n"  type="submit" class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
                                 </form>
                             </div>
@@ -102,7 +102,7 @@
                     </div>
                     <div v-else class="card-body">
                         <p>Winner : @{{game.winner}}</p>
-                        <button v-on:click="play({{$id_join}})">Rejouer</button>
+                        <button v-on:click="play({{$id_join}},  'puissance4')">Rejouer</button>
                         <form action="/joinFriend">
                             <p>
                                 <input type="hidden" name="id_join" value="{{$id_join}}" />

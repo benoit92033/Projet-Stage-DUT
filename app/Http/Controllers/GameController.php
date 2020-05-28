@@ -27,7 +27,7 @@ class GameController extends Controller
             $partie->tour = $id_ami;
         }
 
-        /* TEST WINNER*/ 
+        /* Détection WINNER*/ 
         $lines = [
             [0, 1, 2],
             [3, 4, 5],
@@ -44,7 +44,7 @@ class GameController extends Controller
             if ($partie->pions[$a] && $partie->pions[$a] === $partie->pions[$b] && $partie->pions[$a] === $partie->pions[$c])
                 $partie->winner = $partie->pions[$a];
         }
-        /* TEST EGALITE*/
+        /* Détection EGALITE*/
         if(!in_array(null, $partie->pions)){
             $partie->winner = 'Egalité';
         }
@@ -74,13 +74,45 @@ class GameController extends Controller
         else {
             $partie = $request->partie;
             $partie = json_decode($partie);
-            foreach($partie->pions[$request->index] as $key => $colonne){
+            foreach(array_reverse($partie->pions[$request->index]) as $key => $colonne){
                 if (!$colonne){
-                    $partie->pions[$request->index][$key] = $id;
+                    $partie->pions[$request->index][5-$key] = $id;
+                    $position = 5-$key;
                     break;
                 }
             }
             $partie->tour = $id_ami;
+            /* Détection WINNER*/
+            $lines = [
+                [1, 2, 3, 0, 0, 0],
+                [-1, -2, -3, 0, 0, 0],
+                [0, 0, 0, 1, 2, 3],
+                [0, 0, 0, -1, -2, -3],
+                [1, 2, 3, 1, 2, 3],
+                [-1, -2, -3, -1, -2, -3],
+                [-1, -2, -3, 1, 2, 3],
+                [1, 2, 3, -1, -2, -3]
+            ];
+            foreach($lines as $line) {
+                $ai = $line[0]; $bi = $line[1]; $ci = $line[2]; $ap = $line[3]; $bp = $line[4]; $cp = $line[5];
+                try {
+                    if ($partie->pions[$request->index][$position] === $partie->pions[$request->index + $ai][$position + $ap] 
+                    && $partie->pions[$request->index][$position] === $partie->pions[$request->index + $bi][$position + $bp] 
+                    && $partie->pions[$request->index][$position] === $partie->pions[$request->index + $ci][$position + $cp]){
+                        $partie->winner = $partie->pions[$request->index][$position];
+                    }
+                } catch (\Exception $e) {}
+            }
+
+            /* Détection EGALITE*/
+            $compteur = 0;
+            foreach($partie->pions as $colonne){
+                if(!in_array(null, $colonne)){
+                    $compteur += 1;
+                }
+            }
+            if ($compteur == 7)
+                $partie->winner = 'Egalité';
         }
 
         broadcast(new GameEvent($partie, $id_ami));
