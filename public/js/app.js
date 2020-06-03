@@ -55555,8 +55555,8 @@ var partie = new Vue({
     }
   }
 });
-window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
-Pusher.logToConsole = true;
+window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); //Pusher.logToConsole = true;
+
 var pusher = new Pusher('4c1d236d405c41c95c80', {
   cluster: 'eu'
 });

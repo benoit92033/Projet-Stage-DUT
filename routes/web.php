@@ -28,4 +28,5 @@ Route::post('/morpion', 'GameController@morpion');
 Route::get('/morpion', 'GameController@morpion');
 Route::post('/puissance4', 'GameController@puissance4');
 Route::get('/puissance4', 'GameController@puissance4');
+Route::post('/batailleNavale', 'GameController@batailleNavale');
 Route::get('/batailleNavale', 'GameController@batailleNavale');

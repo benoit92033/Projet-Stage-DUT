@@ -31,7 +31,7 @@
 
                         <div class="card-body">
                             <p>Description du jeu + images</p>
-                            <button disabled v-on:click="play({{$id_join}}, 'batailleNavale')">Jouer</button>
+                            <button v-on:click="play({{$id_join}}, 'batailleNavale')">Jouer</button>
                         </div>
                     </div>
                 </div>
@@ -43,21 +43,21 @@
 
                     <div v-if="game.winner == null" class="card-body">
                         <h1 v-if="game.tour == id">C'est votre tour !</h1>
-                        <h1 v-else>C'est pas ton tour !</h1>
-                        <div  v-for="(n, index) in game.pions" :key="n" style="display: inline-block;">
+                        <h1 v-else>C'est pas votre tour !</h1>
+                        <div  v-for="(n, index) in game.tableau" :key="n" style="display: inline-block;">
                             <form v-if="game.tour != id">
-                                <button v-if="n == id" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-if="n == {{$id_join}}" disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-if="!n" disabled class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="n == game.couleur" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-else-if="!n" disabled class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-else disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
                             </form>
                             <form v-else action="/morpion" method="post">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="id_ami" value="{{$id_join}}">
                                 <input type="hidden" name="index" :value="index">
                                 <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                <button v-if="n == id" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-if="n == {{$id_join}}" disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-if="!n"  type="submit" class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="n == game.couleur" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-else-if="!n"  type="submit" class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-else disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
                             </form>
                         </div>
                     </div>
@@ -80,22 +80,22 @@
 
                     <div v-if="game.winner == null" class="card-body">
                         <h1 v-if="game.tour == id">C'est votre tour !</h1>
-                        <h1 v-else>C'est pas ton tour !</h1>
-                        <div  v-for="(colonne, index) in game.pions" :key="colonne" style="display: inline-block;">
+                        <h1 v-else>C'est pas votre tour !</h1>
+                        <div  v-for="(colonne, index) in game.tableau" :key="colonne" style="display: inline-block;">
                             <div  v-for="n in colonne" :key="n">
                                 <form v-if="game.tour != id">
-                                    <button v-if="n == id" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-if="n == {{$id_join}}" disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-if="!n" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == game.couleur" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-else-if="!n" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-else disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
                                 </form>
                                 <form v-else action="/puissance4" method="post">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                     <input type="hidden" name="id_ami" value="{{$id_join}}">
                                     <input type="hidden" name="index" :value="index">
                                     <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                    <button v-if="n == id" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-if="n == {{$id_join}}" disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-if="!n"  type="submit" class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == game.couleur" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-else-if="!n"  type="submit" class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-else disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
                                 </form>
                             </div>
                         </div>
@@ -113,6 +113,92 @@
                 </div>
                 <!-- Puissance 4 -->
 
+                <!-- Bataille navale -->
+                <div class="card" v-if="game.type_partie == 'batailleNavale'">
+                    <div class="card-header">Bataille navale</div>
+
+                    <div v-if="game.winner == null" class="card-body">
+                        <h1 v-if="game.tour == id">C'est votre tour !</h1>
+                        <h1 v-else>C'est pas votre tour !</h1>
+
+
+                        <div v-if="game.couleur == id">
+                            <div v-for="colonne in game.tableau" :key="colonne" style="display: inline-block;">
+                                <div  v-for="n in colonne" :key="n">
+                                    <button v-if="n == 'bateau'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="n == {{$id_join}}" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="n == 'boom'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="!n" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                </div>
+                            </div>
+                            <div v-for="(colonne, indexColonne) in game.tableau_2" :key="colonne" style="display: inline-block;">
+                                <div  v-for="(n, indexLigne) in colonne" :key="n">
+                                    <form v-if="game.tour != id">
+                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == 'boom'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="!n  || n == 'bateau'" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    </form>
+                                    <form v-else action="/batailleNavale" method="post">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                        <input type="hidden" name="id_ami" value="{{$id_join}}">
+                                        <input type="hidden" name="indexColonne" :value="indexColonne">
+                                        <input type="hidden" name="indexLigne" :value="indexLigne">
+                                        <input type="hidden" name="partie" :value="JSON.stringify(game)">
+                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == 'boom'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="!n || n == 'bateau'"  type="submit" class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div v-else>
+                            <div v-for="colonne in game.tableau_2" :key="colonne" style="display: inline-block;">
+                                <div  v-for="n in colonne" :key="n">
+                                    <button v-if="n == 'bateau'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="n == {{$id_join}}" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="n == 'boom'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="!n" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                </div>
+                            </div>
+                            <div v-for="(colonne, indexColonne) in game.tableau" :key="colonne" style="display: inline-block;">
+                                <div  v-for="(n, indexLigne) in colonne" :key="n">
+                                    <form v-if="game.tour != id">
+                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == 'boom'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="!n  || n == 'bateau'" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    </form>
+                                    <form v-else action="/batailleNavale" method="post">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                        <input type="hidden" name="id_ami" value="{{$id_join}}">
+                                        <input type="hidden" name="indexColonne" :value="indexColonne">
+                                        <input type="hidden" name="indexLigne" :value="indexLigne">
+                                        <input type="hidden" name="partie" :value="JSON.stringify(game)">
+                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == 'boom'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="!n || n == 'bateau'"  type="submit" class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div v-else class="card-body">
+                        <p>Winner : @{{game.winner}}</p>
+                        <button v-on:click="play({{$id_join}},  'batailleNavale')">Rejouer</button>
+                        <form action="/joinFriend">
+                            <p>
+                                <input type="hidden" name="id_join" value="{{$id_join}}" />
+                                <input type="submit" value="Quitter">
+                            </p>
+                        </form>
+                    </div>
+                </div>
+                <!-- Bataille navale -->
+
 
 
             </div>
@@ -120,14 +206,14 @@
                 <div class="card">
                     <div class="card-header">VISIO</div>
 
-                    <div class="card-body" style="height: 200px;">
+                    <div class="card-body" style="height: 130px;">
                         visio
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">CHAT</div>
 
-                    <div class="card-body" style="height: 200px;">
+                    <div class="card-body" style="height: 130px;">
                         chat
                     </div>
                 </div>

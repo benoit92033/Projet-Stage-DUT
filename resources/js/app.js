@@ -58,7 +58,7 @@ const partie = new Vue({
 });
 
 window.Pusher = require('pusher-js');
-Pusher.logToConsole = true;
+//Pusher.logToConsole = true;
 
 var pusher = new Pusher('4c1d236d405c41c95c80', {
     cluster: 'eu'

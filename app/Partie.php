@@ -5,9 +5,11 @@ namespace App;
 class Partie
 {
     public $tour;
-    public $pions;
+    public $tableau;
+    public $tableau_2;
     public $winner;
     public $type_partie;
+    public $couleur;
     /*public $lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -19,17 +21,19 @@ class Partie
         [2, 4, 6]
     ];*/
 
-    public function __construct($tour, $pions, $type_partie){
+    public function __construct($tour, $tableau, $tableau_2, $type_partie){
         $this->tour = $tour;
-        $this->pions = $pions;
+        $this->tableau = $tableau;
+        $this->tableau_2 = $tableau_2;
         $this->winner = null;
         $this->type_partie = $type_partie;
+        $this->couleur = $tour;
     }
 
     /*public function calculateWinner() {
         foreach($this->lines as $line) {
-            if ($this->pions[0] && $this->pions[0] === $this->pions[1] && $this->pions[0] === $this->pions[2])
-                $this->winner = $this->pions[0];
+            if ($this->tableau[0] && $this->tableau[0] === $this->tableau[1] && $this->tableau[0] === $this->tableau[2])
+                $this->winner = $this->tableau[0];
         }
         return;
     }*/
