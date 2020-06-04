@@ -23,6 +23,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/addFriend', 'AmisController@addFriend');
 Route::get('/joinFriend', 'AmisController@joinFriend');
+Route::get('/delFriend', 'AmisController@delFriend');
 
 Route::post('/morpion', 'GameController@morpion');
 Route::get('/morpion', 'GameController@morpion');

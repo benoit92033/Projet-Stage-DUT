@@ -65,6 +65,39 @@ class AmisController extends Controller
         }
     }
 
+    public function delFriend(Request $request)
+    {
+        $id = Auth::user()->id;
+        $friend_code = Auth::user()->friend_code;
+        $id_ami = $request->id_ami;
+
+        Amis::query()
+            ->where('amis.id', '=', $id)
+            ->where('amis.id_ami', '=', $id_ami)
+            ->delete();
+
+        Amis::query()
+            ->where('amis.id', '=', $id_ami)
+            ->where('amis.id_ami', '=', $id)
+            ->delete();
+
+        $amis_amis = Amis::query()->select('name', 'users.id as id_ami')
+            ->join('users', 'users.id', '=', 'id_ami')
+            ->where('amis.id', '=', $id_ami)->get()->toArray();
+
+        broadcast(new AmisEvent($amis_amis, $id_ami));
+
+        $amis = Amis::query()->select('name', 'users.id as id_ami')
+                ->join('users', 'users.id', '=', 'id_ami')
+                ->where('amis.id', '=', $id)->get()->toArray();
+
+        return view('home', [
+            "id" => Auth::user()->id,
+            "friend_code" => $friend_code,
+            "amis" => $amis
+        ]);
+    }
+
     public function joinFriend(Request $request)
     {
         $id_join = $request->id_join;

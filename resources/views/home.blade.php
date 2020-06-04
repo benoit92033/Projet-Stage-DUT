@@ -57,6 +57,12 @@
                                         <input type="submit" value="Rejoindre">
                                     </p>
                                 </form>
+                                <form action="/delFriend">
+                                    <p>
+                                        <input type="hidden" name="id_ami" :value="ami.id_ami" />
+                                        <input type="submit" value="Supprimer">
+                                    </p>
+                                </form>
                             </li>
                         </ul>
                     </div>

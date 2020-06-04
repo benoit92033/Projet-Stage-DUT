@@ -10,6 +10,8 @@ class Partie
     public $winner;
     public $type_partie;
     public $couleur;
+    public $bateaux;
+    public $bateaux_2;
     /*public $lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -28,6 +30,8 @@ class Partie
         $this->winner = null;
         $this->type_partie = $type_partie;
         $this->couleur = $tour;
+        $this->bateaux = [1,2,3,4,5];
+        $this->bateaux_2 = [1,2,3,4,5];
     }
 
     /*public function calculateWinner() {
