@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div id="partie" class="">
+    <div id="partie" class="container">
         <h1>Moi : {{$id}} - VS - Lui : {{$id_join}}</h1>
         <div class="row">
             <div class="col-8">
@@ -46,18 +46,20 @@
                         <h1 v-else>C'est pas votre tour !</h1>
                         <div  v-for="(n, index) in game.tableau" :key="n" style="display: inline-block;">
                             <form v-if="game.tour != id">
-                                <button v-if="n == game.couleur" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-else-if="!n" disabled class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-else disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="n == game.couleur" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"><i class="far fa-circle fa-10x" style="color: #1AA354;"></i></button>
+                                <button v-else-if="!n && game.couleur == id" disabled class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px; background-color: #D5D5D5;"><i class="far fa-circle fa-10x" style="color: #6c757d;"></i></button>
+                                <button v-else-if="!n && game.couleur != id" disabled class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px; background-color: #D5D5D5;"><i class="fas fa-times fa-10x" style="color: #6c757d;"></i></button>
+                                <button v-else disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"><i class="fas fa-times fa-10x" style="color: #1672BE;"></i></button>
                             </form>
                             <form v-else action="/morpion" method="post">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="id_ami" value="{{$id_join}}">
                                 <input type="hidden" name="index" :value="index">
                                 <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                <button v-if="n == game.couleur" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-else-if="!n"  type="submit" class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
-                                <button v-else disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"></button>
+                                <button v-if="n == game.couleur" disabled class="bg-success" style="height: 200px; width: 200px; border: solid black 1px;"><i class="far fa-circle fa-10x" style="color: #1AA354;"></i></button>
+                                <button v-else-if="!n && game.couleur == id" type="submit" class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px; background-color: #D5D5D5;"><i class="far fa-circle fa-10x" style="color: #6c757d;"></i></button>
+                                <button v-else-if="!n && game.couleur != id" type="submit" class="bg-secondary" style="height: 200px; width: 200px; border: solid black 1px; background-color: #D5D5D5;"><i class="fas fa-times fa-10x" style="color: #6c757d;"></i></button>
+                                <button v-else disabled class="bg-primary" style="height: 200px; width: 200px; border: solid black 1px;"><i class="fas fa-times fa-10x" style="color: #1672BE;"></i></button>
                             </form>
                         </div>
                     </div>
@@ -84,18 +86,18 @@
                         <div  v-for="(colonne, index) in game.tableau" :key="colonne" style="display: inline-block;">
                             <div  v-for="n in colonne" :key="n">
                                 <form v-if="game.tour != id">
-                                    <button v-if="n == game.couleur" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-else-if="!n" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-else disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == game.couleur" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"><i class="fas fa-circle fa-4x" style="color: #e3342f;"></i></button>
+                                    <button v-else-if="!n" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"><i class="fas fa-circle fa-4x" style="color: #ffffff;"></i></button>
+                                    <button v-else disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"><i class="fas fa-circle fa-4x" style="color: #ffed4a;"></i></button>
                                 </form>
                                 <form v-else action="/puissance4" method="post">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                     <input type="hidden" name="id_ami" value="{{$id_join}}">
                                     <input type="hidden" name="index" :value="index">
                                     <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                    <button v-if="n == game.couleur" disabled class="bg-danger" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-else-if="!n"  type="submit" class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"></button>
-                                    <button v-else disabled class="bg-warning" style="height: 75px; width: 75px; border: solid black 1px;"></button>
+                                    <button v-if="n == game.couleur" disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"><i class="fas fa-circle fa-4x" style="color: #e3342f;"></i></button>
+                                    <button v-else-if="!n"  type="submit" class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"><i class="fas fa-circle fa-4x" style="color: #ffffff;"></i></button>
+                                    <button v-else disabled class="bg-secondary" style="height: 75px; width: 75px; border: solid black 1px;"><i class="fas fa-circle fa-4x" style="color: #ffed4a;"></i></button>
                                 </form>
                             </div>
                         </div>
@@ -125,20 +127,20 @@
                         <div v-if="game.couleur == id">
                             <div v-for="colonne in game.tableau" :key="colonne" style="display: inline-block;">
                                 <div  v-for="n in colonne" :key="n">
-                                    <button v-if="n < 0 && n > -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="n == {{$id_join}}" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="n < -10" disabled class="bg-warning" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="n == 'coulé'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="!n" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="n < 0 && n > -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-circle" style="color: #6c757d;"></i></button>
+                                    <button v-if="n == {{$id_join}}" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
+                                    <button v-if="n < -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color:orange;"></i></button>
+                                    <button v-if="n == 'coulé'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
+                                    <button v-if="!n" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color: #3490dc;"></i></button>
                                 </div>
                             </div>
                             <div v-for="(colonne, indexColonne) in game.tableau_2" :key="colonne" style="display: inline-block;">
                                 <div  v-for="(n, indexLigne) in colonne" :key="n">
                                     <form v-if="game.tour != id">
-                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n < -10" disabled class="bg-warning" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n == 'coulé'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="!n  || (n < 0  && n > -10)" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == id" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
+                                        <button v-if="n < -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color:orange;"></i></button>
+                                        <button v-if="n == 'coulé'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
+                                        <button v-if="!n  || (n < 0  && n > -10)" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color: #3490dc;"></i></button>
                                     </form>
                                     <form v-else action="/batailleNavale" method="post">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -146,10 +148,10 @@
                                         <input type="hidden" name="indexColonne" :value="indexColonne">
                                         <input type="hidden" name="indexLigne" :value="indexLigne">
                                         <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n < -10" disabled class="bg-warning" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n == 'coulé'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="!n || (n < 0  && n > -10)"  type="submit" class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == id" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
+                                        <button v-if="n < -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color:orange;"></i></button>
+                                        <button v-if="n == 'coulé'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
+                                        <button v-if="!n || (n < 0  && n > -10)"  type="submit" class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color: #3490dc;"></i></button>
                                     </form>
                                 </div>
                             </div>
@@ -159,20 +161,20 @@
                         <div v-else>
                             <div v-for="colonne in game.tableau_2" :key="colonne" style="display: inline-block;">
                                 <div  v-for="n in colonne" :key="n">
-                                    <button v-if="n < 0 && n > -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="n == {{$id_join}}" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="n < -10" disabled class="bg-warning" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="n == 'coulé'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                    <button v-if="!n" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                    <button v-if="n < 0 && n > -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-circle" style="color: #6c757d;"></i></button>
+                                    <button v-if="n == {{$id_join}}" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
+                                    <button v-if="n < -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color:orange;"></i></button>
+                                    <button v-if="n == 'coulé'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
+                                    <button v-if="!n" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color: #3490dc;"></i></button>
                                 </div>
                             </div>
                             <div v-for="(colonne, indexColonne) in game.tableau" :key="colonne" style="display: inline-block;">
                                 <div  v-for="(n, indexLigne) in colonne" :key="n">
                                     <form v-if="game.tour != id">
-                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n < -10" disabled class="bg-warning" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n == 'coulé'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="!n  || (n < 0  && n > -10)" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == id" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
+                                        <button v-if="n < -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color:orange;"></i></button>
+                                        <button v-if="n == 'coulé'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
+                                        <button v-if="!n  || (n < 0  && n > -10)" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color: #3490dc;"></i></button>
                                     </form>
                                     <form v-else action="/batailleNavale" method="post">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -180,10 +182,10 @@
                                         <input type="hidden" name="indexColonne" :value="indexColonne">
                                         <input type="hidden" name="indexLigne" :value="indexLigne">
                                         <input type="hidden" name="partie" :value="JSON.stringify(game)">
-                                        <button v-if="n == id" disabled class="bg-success" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n < -10" disabled class="bg-warning" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="n == 'coulé'" disabled class="bg-danger" style="height: 30px; width: 30px; border: solid black 1px;"></button>
-                                        <button v-if="!n || (n < 0  && n > -10)"  type="submit" class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"></button>
+                                        <button v-if="n == id" disabled class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
+                                        <button v-if="n < -10" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color:orange;"></i></button>
+                                        <button v-if="n == 'coulé'" disabled class="bg-secondary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
+                                        <button v-if="!n || (n < 0  && n > -10)"  type="submit" class="bg-primary" style="height: 30px; width: 30px; border: solid black 1px;"><i class="fas fa-fire" style="color: #3490dc;"></i></button>
                                     </form>
                                 </div>
                             </div>

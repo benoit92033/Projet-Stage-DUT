@@ -207,44 +207,48 @@ class GameController extends Controller
             }
 
             /* Détection COULER*/
-            foreach($partie->bateaux_2 as $key => $bat){
-                $compteur = 0;
-                if ($bat != null){
-                    foreach($partie->tableau_2 as $colonne){
-                        if(!in_array(-$bat, $colonne)){
-                            $compteur += 1;
-                        }
-                    }
-                    if ($compteur == 10){
-                        $partie->tour = $id_ami;
-                        foreach($partie->tableau_2 as $indexCol => $colonne)
-                            foreach($colonne as $indexLigne => $elm){
-                                $test = -$bat -10;
-                                if ($elm == $test)
-                                    $partie->tableau_2[$indexCol][$indexLigne] = 'coulé';
+            if($partie->couleur == $id){
+                foreach($partie->bateaux_2 as $key => $bat){
+                    $compteur = 0;
+                    if ($bat != null){
+                        foreach($partie->tableau_2 as $colonne){
+                            if(!in_array(-$bat, $colonne)){
+                                $compteur += 1;
                             }
-                        $partie->bateaux_2[$key] = null;
+                        }
+                        if ($compteur == 10){
+                            $partie->tour = $id_ami;
+                            foreach($partie->tableau_2 as $indexCol => $colonne)
+                                foreach($colonne as $indexLigne => $elm){
+                                    $test = -$bat -10;
+                                    if ($elm == $test)
+                                        $partie->tableau_2[$indexCol][$indexLigne] = 'coulé';
+                                }
+                            $partie->bateaux_2[$key] = null;
+                        }
                     }
                 }
             }
 
-            foreach($partie->bateaux as $key => $bat){
-                $compteur = 0;
-                if ($bat != null){
-                    foreach($partie->tableau as $colonne){
-                        if(!in_array(-$bat, $colonne)){
-                            $compteur += 1;
-                        }
-                    }
-                    if ($compteur == 10){
-                        $partie->tour = $id_ami;
-                        foreach($partie->tableau as $indexCol => $colonne)
-                            foreach($colonne as $indexLigne => $elm){
-                                $test = -$bat -10;
-                                if ($elm == $test)
-                                    $partie->tableau[$indexCol][$indexLigne] = 'coulé';
+            else {
+                foreach($partie->bateaux as $key => $bat){
+                    $compteur = 0;
+                    if ($bat != null){
+                        foreach($partie->tableau as $colonne){
+                            if(!in_array(-$bat, $colonne)){
+                                $compteur += 1;
                             }
-                        $partie->bateaux[$key] = null;
+                        }
+                        if ($compteur == 10){
+                            $partie->tour = $id_ami;
+                            foreach($partie->tableau as $indexCol => $colonne)
+                                foreach($colonne as $indexLigne => $elm){
+                                    $test = -$bat -10;
+                                    if ($elm == $test)
+                                        $partie->tableau[$indexCol][$indexLigne] = 'coulé';
+                                }
+                            $partie->bateaux[$key] = null;
+                        }
                     }
                 }
             }
