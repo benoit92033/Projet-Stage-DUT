@@ -6993,7 +6993,7 @@ a.bg-primary:hover,
 a.bg-primary:focus,
 button.bg-primary:hover,
 button.bg-primary:focus {
-  /*background-color: #2176bd !important;*/
+  background-color: #2176bd !important;
 }
 
 .bg-secondary {
@@ -7015,7 +7015,7 @@ a.bg-success:hover,
 a.bg-success:focus,
 button.bg-success:hover,
 button.bg-success:focus {
-  /*background-color: #2d995b !important;*/
+  background-color: #2d995b !important;
 }
 
 .bg-info {
@@ -10931,5 +10931,43 @@ a.text-dark:focus {
     color: inherit;
     border-color: #dee2e6;
   }
+}
+
+.morpion {
+  height: 200px;
+  width: 200px;
+  border: solid white 1px;
+  border-radius: 10%;
+}
+
+.puissance4 {
+  height: 75px;
+  width: 75px;
+  border: none;
+}
+
+.batailleNavale {
+  height: 30px;
+  width: 30px;
+  border: none;
+}
+
+.bateau {
+  height: 30px;
+  width: 30px;
+  border: solid #3490dc 0px;
+  border-radius: 30%;
+}
+
+.bg-primary-hover-disabled {
+  background-color: #3490dc !important;
+}
+
+.bg-secondary-hover-disabled {
+  background-color: #6c757d !important;
+}
+
+.bg-success-hover-disabled {
+  background-color: #38c172 !important;
 }
 

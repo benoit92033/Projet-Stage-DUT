@@ -6,12 +6,10 @@ class Partie
 {
     public $tour;
     public $tableau;
-    public $tableau_2;
     public $winner;
     public $type_partie;
     public $couleur;
-    public $bateaux;
-    public $bateaux_2;
+    public $sound;
     /*public $lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -23,15 +21,12 @@ class Partie
         [2, 4, 6]
     ];*/
 
-    public function __construct($tour, $tableau, $tableau_2, $type_partie){
+    public function __construct($tour, $tableau, $type_partie){
         $this->tour = $tour;
         $this->tableau = $tableau;
-        $this->tableau_2 = $tableau_2;
         $this->winner = null;
         $this->type_partie = $type_partie;
         $this->couleur = $tour;
-        $this->bateaux = [1,2,3,4,5];
-        $this->bateaux_2 = [1,2,3,4,5];
     }
 
     /*public function calculateWinner() {

@@ -108,6 +108,7 @@ class AmisController extends Controller
         return view('partie',[
             "id_join" => $id_join,
             "id" => Auth::user()->id,
+            "test" => Auth::user()->api_token,
             "partie" => '',
             "type_partie" => '',
             "game" => ''

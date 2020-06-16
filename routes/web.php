@@ -25,9 +25,9 @@ Route::get('/addFriend', 'AmisController@addFriend');
 Route::get('/joinFriend', 'AmisController@joinFriend');
 Route::get('/delFriend', 'AmisController@delFriend');
 
-Route::post('/morpion', 'GameController@morpion');
-Route::get('/morpion', 'GameController@morpion');
-Route::post('/puissance4', 'GameController@puissance4');
-Route::get('/puissance4', 'GameController@puissance4');
-Route::post('/batailleNavale', 'GameController@batailleNavale');
-Route::get('/batailleNavale', 'GameController@batailleNavale');
+Route::post('/morpion', 'MorpionController@morpion');
+Route::get('/morpion', 'MorpionController@morpion');
+Route::post('/puissance4', 'Puissance4Controller@puissance4');
+Route::get('/puissance4', 'Puissance4Controller@puissance4');
+Route::post('/batailleNavale', 'BatailleNavaleController@batailleNavale');
+Route::get('/batailleNavale', 'BatailleNavaleController@batailleNavale');

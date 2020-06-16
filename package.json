@@ -25,7 +25,12 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
+        "fs": "0.0.1-security",
         "laravel-echo": "^1.8.0",
-        "pusher-js": "^6.0.3"
+        "net": "^1.0.2",
+        "pusher": "^3.0.1",
+        "pusher-js": "^6.0.3",
+        "tl": "^0.10.2",
+        "tls": "0.0.1"
     }
 }

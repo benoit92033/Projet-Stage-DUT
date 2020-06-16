@@ -74,5 +74,6 @@
         window.id = @json($id);
         window.amis = @json($amis);
         window.game = null;
+        window.typeBomb = null;
     </script>
 @endsection
