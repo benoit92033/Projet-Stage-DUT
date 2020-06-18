@@ -26,15 +26,13 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $friend_code = Auth::user()->friend_code;
-
         $amis = Amis::query()->select('name', 'id_ami')
             ->join('users', 'users.id', '=', 'id_ami')
             ->where('amis.id', '=', Auth::user()->id)->get()->toArray();
 
         return view('home', [
-            "id" => Auth::user()->id,
-            "friend_code" => $friend_code,
+            "user" => Auth::user(),
+            "api_token" => Auth::user()->api_token,
             "amis" => $amis
         ]);
     }

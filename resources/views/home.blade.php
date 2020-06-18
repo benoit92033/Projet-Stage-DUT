@@ -31,11 +31,11 @@
                     <div class="card-header">Ajouter un ami</div>
 
                     <div class="card-body">
-                        <p>Mon code ami : {{ $friend_code }} </p>
+                        <p>Mon code ami : @{{user.friend_code}} </p>
                         <form action="/addFriend">
                             <p>
                                 <label for="idFriend">Ajouter ami : </label>
-                                <input id="idFriend" v-model="idFriend" type="text" name="idFriend" placeholder="Code ami" required>
+                                <input id="idFriend" type="text" name="idFriend" placeholder="Code ami" required>
                             </p>
                             <p>
                                 <input type="submit" value="Ajouter">
@@ -71,9 +71,12 @@
         </div>
     </div>
     <script>
-        window.id = @json($id);
+        window.user = @json($user);
         window.amis = @json($amis);
         window.game = null;
         window.typeBomb = null;
+        window.id_ami = null;
+        window.component_key = null;
+        window.idGame = null;
     </script>
 @endsection

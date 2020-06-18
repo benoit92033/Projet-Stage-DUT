@@ -8,14 +8,13 @@ use App\User;
 use App\Amis;
 use App\AmisEvent;
 use App\JoinAmisEvent;
+use Illuminate\Support\Str;
 
 class AmisController extends Controller
 {
     public function addFriend(Request $request)
     {
         $id = Auth::user()->id;
-        $friend_code = Auth::user()->friend_code;
-
         $id_ami = User::query()->select('id')
             ->where('friend_code', '=', $request->idFriend)->get()->toArray();
 
@@ -45,8 +44,7 @@ class AmisController extends Controller
                 ->where('amis.id', '=', $id)->get()->toArray();
 
             return view('home', [
-                "id" => Auth::user()->id,
-                "friend_code" => $friend_code,
+                "user" => Auth::user(),
                 "messageErreur" => $messageErreur ?? '',
                 "amis" => $amis
             ]);
@@ -57,8 +55,7 @@ class AmisController extends Controller
                 ->where('amis.id', '=', $id)->get()->toArray();
 
             return view('home', [
-                "id" => Auth::user()->id,
-                "friend_code" => $friend_code,
+                "user" => Auth::user(),
                 "messageErreur" => "Code ami non valide",
                 "amis" => $amis
             ]);
@@ -68,7 +65,6 @@ class AmisController extends Controller
     public function delFriend(Request $request)
     {
         $id = Auth::user()->id;
-        $friend_code = Auth::user()->friend_code;
         $id_ami = $request->id_ami;
 
         Amis::query()
@@ -92,8 +88,7 @@ class AmisController extends Controller
                 ->where('amis.id', '=', $id)->get()->toArray();
 
         return view('home', [
-            "id" => Auth::user()->id,
-            "friend_code" => $friend_code,
+            "user" => Auth::user(),
             "amis" => $amis
         ]);
     }
@@ -102,16 +97,17 @@ class AmisController extends Controller
     {
         $id_join = $request->id_join;
 
-        if(!isset($request->broadcast))
-            broadcast(new JoinAmisEvent($id_join, Auth::user()->id));
+        if(!isset($request->broadcast)){
+            $idGame = Str::random(10);
+            broadcast(new JoinAmisEvent($id_join, Auth::user()->id, $idGame));
+        }
+        else $idGame = $request->idGame;
 
         return view('partie',[
-            "id_join" => $id_join,
-            "id" => Auth::user()->id,
-            "test" => Auth::user()->api_token,
-            "partie" => '',
+            "id_ami" => $id_join,
+            "user" => Auth::user(),
             "type_partie" => '',
-            "game" => ''
+            "idGame" => $idGame
         ]);
     }
 }
