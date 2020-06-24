@@ -13,13 +13,13 @@ class JoinAmisEvent implements ShouldBroadcast
 
   public $id_receiver;
   public $id_ami;
-  public $idGame;
+  public $idSession;
 
-  public function __construct($id_receiver, $id_ami, $idGame)
+  public function __construct($id_receiver, $id_ami, $idSession)
   {
       $this->id_receiver = $id_receiver;
       $this->id_ami = $id_ami;
-      $this->idGame = $idGame;
+      $this->idSession = $idSession;
   }
 
   public function broadcastOn()

@@ -25,9 +25,11 @@ Route::get('/addFriend', 'AmisController@addFriend');
 Route::get('/joinFriend', 'AmisController@joinFriend');
 Route::get('/delFriend', 'AmisController@delFriend');
 
+/*
 Route::post('/morpion', 'MorpionController@morpion');
 Route::get('/morpion', 'MorpionController@morpion');
 Route::post('/puissance4', 'Puissance4Controller@puissance4');
 Route::get('/puissance4', 'Puissance4Controller@puissance4');
 Route::post('/batailleNavale', 'BatailleNavaleController@batailleNavale');
 Route::get('/batailleNavale', 'BatailleNavaleController@batailleNavale');
+*/

@@ -60020,14 +60020,130 @@ var partie = new Vue({
     game: game,
     typeBomb: typeBomb,
     component_key: component_key,
-    idGame: idGame,
-    user: user
+    idSession: idSession,
+    user: user,
+    messages: messages,
+    message: '',
+    caller: caller,
+    localUserMedia: localUserMedia,
+    hover: false,
+    hover1: false,
+    hover2: false
   },
   methods: {
+    GetRTCIceCandidate: function GetRTCIceCandidate() {
+      window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate || window.msRTCIceCandidate;
+      return window.RTCIceCandidate;
+    },
+    GetRTCPeerConnection: function GetRTCPeerConnection() {
+      window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.msRTCPeerConnection;
+      return window.RTCPeerConnection;
+    },
+    GetRTCSessionDescription: function GetRTCSessionDescription() {
+      window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription || window.msRTCSessionDescription;
+      return window.RTCSessionDescription;
+    },
+    prepareCaller: function prepareCaller() {
+      //Initializing a peer connection
+      this.caller = new window.RTCPeerConnection(); //Listen for ICE Candidates and send them to remote peers
+
+      this.caller.onicecandidate = function (evt) {
+        if (!evt.candidate) return;
+        console.log("onicecandidate called");
+        partie.onIceCandidate(partie.caller, evt);
+      }; //onaddstream handler to receive remote feed and show in remoteview video element
+
+
+      this.caller.onaddstream = function (evt) {
+        console.log("onaddstream called");
+        /*if (window.URL) {
+          document.getElementById("remoteview").src = window.URL.createObjectURL(
+            evt.stream
+          );
+        } else {*/
+
+        document.getElementById("remoteview").srcObject = evt.stream; //}
+      };
+    },
+    onIceCandidate: function onIceCandidate(peer, evt) {
+      if (evt.candidate) {
+        echo["private"]("client-candidate").whisper('client-candidate', {
+          "candidate": evt.candidate
+        });
+      }
+    },
+    getCam: function getCam() {
+      //Get local audio/video feed and show it in selfview video element
+      return navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+    },
+    callUser: function callUser() {
+      this.getCam().then(function (stream) {
+        /*if (window.URL) {
+          document.getElementById("selfview").src = window.URL.createObjectURL(
+            stream
+          );
+        } else {*/
+        document.getElementById("selfview").srcObject = stream; // }
+
+        partie.toggleEndCallButton();
+        partie.caller.addStream(stream);
+        partie.localUserMedia = stream;
+        partie.caller.createOffer().then(function (desc) {
+          partie.caller.setLocalDescription(new RTCSessionDescription(desc));
+          echo["private"]("client-sdp").whisper('client-sdp', {
+            sdp: desc,
+            from: partie.user.id
+          });
+        });
+      })["catch"](function (error) {
+        console.log("an error occured", error);
+      });
+    },
+    toggleEndCallButton: function toggleEndCallButton() {
+      if (document.getElementById("endCall").style.display == "block") {
+        document.getElementById("endCall").style.display = "none";
+      } else {
+        document.getElementById("endCall").style.display = "block";
+      }
+    },
+    endCall: function endCall() {
+      this.caller.close();
+
+      var _iterator = _createForOfIteratorHelper(this.localUserMedia.getTracks()),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var track = _step.value;
+          track.stop();
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+
+      this.prepareCaller();
+      this.toggleEndCallButton();
+    },
+    endCurrentCall: function endCurrentCall() {
+      echo["private"]("client-endcall").whisper('client-endcall', {});
+      this.endCall();
+    },
+    sendMessage: function sendMessage(message) {
+      this.messages.push(message);
+      this.message = '';
+      echo["private"]("chat.".concat(idSession)).whisper('chat', {
+        messages: this.messages
+      });
+    },
     quit: function quit() {
       this.game.type_partie = null;
       this.game.sound = '';
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
@@ -60039,15 +60155,17 @@ var partie = new Vue({
       this.game.couleur = this.user.id;
       this.game.winner = null;
       this.game.sound = '';
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+      /* Broadcast */
+
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
     },
     morpion: function morpion(index) {
+      this.game.sound = "/sounds/CraieMorpion.mp3";
       this.game.tableau[index] = user.id;
       this.game.tour = id_ami;
-      this.game.sound = "/sounds/CraieMorpion.mp3";
       /* Détection EGALITE */
 
       if (this.game.tableau.includes(null) == false) {
@@ -60065,8 +60183,10 @@ var partie = new Vue({
         var c = line[2];
         if (this.game.tableau[a] && this.game.tableau[a] === this.game.tableau[b] && this.game.tableau[a] === this.game.tableau[c]) this.game.winner = this.game.tableau[a];
       }
+      /* Broadcast */
 
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
@@ -60079,7 +60199,9 @@ var partie = new Vue({
       this.game.couleur = this.user.id;
       this.game.winner = null;
       this.game.sound = '';
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+      /* Broadcast */
+
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
@@ -60087,14 +60209,14 @@ var partie = new Vue({
     puissance4: function puissance4(index) {
       this.game.tableau[index];
 
-      var _iterator = _createForOfIteratorHelper(this.game.tableau[index].reverse().entries()),
-          _step;
+      var _iterator2 = _createForOfIteratorHelper(this.game.tableau[index].reverse().entries()),
+          _step2;
 
       try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var _step$value = _slicedToArray(_step.value, 2),
-              key = _step$value[0],
-              elem = _step$value[1];
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var _step2$value = _slicedToArray(_step2.value, 2),
+              key = _step2$value[0],
+              elem = _step2$value[1];
 
           if (!elem) {
             this.game.tableau[index].reverse();
@@ -60104,9 +60226,9 @@ var partie = new Vue({
           }
         }
       } catch (err) {
-        _iterator.e(err);
+        _iterator2.e(err);
       } finally {
-        _iterator.f();
+        _iterator2.f();
       }
 
       this.game.tour = id_ami;
@@ -60114,21 +60236,21 @@ var partie = new Vue({
 
       var compteur = 0;
 
-      var _iterator2 = _createForOfIteratorHelper(this.game.tableau),
-          _step2;
+      var _iterator3 = _createForOfIteratorHelper(this.game.tableau),
+          _step3;
 
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var colonne = _step2.value;
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var colonne = _step3.value;
 
           if (colonne.includes(null) == false) {
             compteur += 1;
           }
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator3.e(err);
       } finally {
-        _iterator2.f();
+        _iterator3.f();
       }
 
       if (compteur == 7) this.game.winner = 'Egalité';
@@ -60151,8 +60273,10 @@ var partie = new Vue({
           }
         } catch (error) {}
       }
+      /* Broadcast */
 
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
@@ -60167,36 +60291,36 @@ var partie = new Vue({
       colonnes_2.pop();
       colonnes_2.shift();
 
-      var _iterator3 = _createForOfIteratorHelper(colonnes_2),
-          _step3;
-
-      try {
-        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-          var col = _step3.value;
-          col.pop();
-          col.shift();
-        }
-      } catch (err) {
-        _iterator3.e(err);
-      } finally {
-        _iterator3.f();
-      }
-
-      var _iterator4 = _createForOfIteratorHelper(colonnes),
+      var _iterator4 = _createForOfIteratorHelper(colonnes_2),
           _step4;
 
       try {
         for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-          var _col = _step4.value;
+          var col = _step4.value;
+          col.pop();
+          col.shift();
+        }
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
+      }
+
+      var _iterator5 = _createForOfIteratorHelper(colonnes),
+          _step5;
+
+      try {
+        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+          var _col = _step5.value;
 
           _col.pop();
 
           _col.shift();
         }
       } catch (err) {
-        _iterator4.e(err);
+        _iterator5.e(err);
       } finally {
-        _iterator4.f();
+        _iterator5.f();
       }
 
       console.log(colonnes);
@@ -60211,7 +60335,7 @@ var partie = new Vue({
       this.game.bateaux_2 = [1, 2, 3, 4, 5];
       this.game.bombs = [999, 3, 1];
       this.game.bombs_2 = [999, 3, 1];
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
@@ -60241,12 +60365,12 @@ var partie = new Vue({
 
       this.game.tour = this.id_ami;
 
-      var _iterator5 = _createForOfIteratorHelper(bombs),
-          _step5;
+      var _iterator6 = _createForOfIteratorHelper(bombs),
+          _step6;
 
       try {
-        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-          var bomb = _step5.value;
+        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+          var bomb = _step6.value;
 
           try {
             if (this.game.couleur == this.user.id) {
@@ -60265,75 +60389,75 @@ var partie = new Vue({
           } catch (error) {}
         }
       } catch (err) {
-        _iterator5.e(err);
+        _iterator6.e(err);
       } finally {
-        _iterator5.f();
+        _iterator6.f();
       }
 
       if (this.game.couleur == this.user.id) {
-        var _iterator6 = _createForOfIteratorHelper(this.game.bateaux_2.entries()),
-            _step6;
+        var _iterator7 = _createForOfIteratorHelper(this.game.bateaux_2.entries()),
+            _step7;
 
         try {
-          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-            var _step6$value = _slicedToArray(_step6.value, 2),
-                key = _step6$value[0],
-                bat = _step6$value[1];
+          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+            var _step7$value = _slicedToArray(_step7.value, 2),
+                key = _step7$value[0],
+                bat = _step7$value[1];
 
             var _compteur = 0;
 
             if (bat != null) {
-              var _iterator7 = _createForOfIteratorHelper(this.game.tableau_2),
-                  _step7;
+              var _iterator8 = _createForOfIteratorHelper(this.game.tableau_2),
+                  _step8;
 
               try {
-                for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-                  var _colonne = _step7.value;
+                for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+                  var _colonne = _step8.value;
 
                   if (_colonne.includes(-bat) == false) {
                     _compteur += 1;
                   }
                 }
               } catch (err) {
-                _iterator7.e(err);
+                _iterator8.e(err);
               } finally {
-                _iterator7.f();
+                _iterator8.f();
               }
 
               if (_compteur == 10) {
                 this.game.tour = this.id_ami;
 
-                var _iterator8 = _createForOfIteratorHelper(this.game.tableau_2.entries()),
-                    _step8;
+                var _iterator9 = _createForOfIteratorHelper(this.game.tableau_2.entries()),
+                    _step9;
 
                 try {
-                  for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-                    var _step8$value = _slicedToArray(_step8.value, 2),
-                        indexCol = _step8$value[0],
-                        colonne = _step8$value[1];
+                  for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+                    var _step9$value = _slicedToArray(_step9.value, 2),
+                        indexCol = _step9$value[0],
+                        colonne = _step9$value[1];
 
-                    var _iterator9 = _createForOfIteratorHelper(colonne.entries()),
-                        _step9;
+                    var _iterator10 = _createForOfIteratorHelper(colonne.entries()),
+                        _step10;
 
                     try {
-                      for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-                        var _step9$value = _slicedToArray(_step9.value, 2),
-                            _indexLigne = _step9$value[0],
-                            elm = _step9$value[1];
+                      for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+                        var _step10$value = _slicedToArray(_step10.value, 2),
+                            _indexLigne = _step10$value[0],
+                            elm = _step10$value[1];
 
                         var test = -bat - 10;
                         if (elm == test) this.game.tableau_2[indexCol][_indexLigne] = 'coulé';
                       }
                     } catch (err) {
-                      _iterator9.e(err);
+                      _iterator10.e(err);
                     } finally {
-                      _iterator9.f();
+                      _iterator10.f();
                     }
                   }
                 } catch (err) {
-                  _iterator8.e(err);
+                  _iterator9.e(err);
                 } finally {
-                  _iterator8.f();
+                  _iterator9.f();
                 }
 
                 this.game.bateaux_2[key] = null;
@@ -60341,75 +60465,75 @@ var partie = new Vue({
             }
           }
         } catch (err) {
-          _iterator6.e(err);
+          _iterator7.e(err);
         } finally {
-          _iterator6.f();
+          _iterator7.f();
         }
       } else {
-        var _iterator10 = _createForOfIteratorHelper(this.game.bateaux.entries()),
-            _step10;
+        var _iterator11 = _createForOfIteratorHelper(this.game.bateaux.entries()),
+            _step11;
 
         try {
-          for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-            var _step10$value = _slicedToArray(_step10.value, 2),
-                _key = _step10$value[0],
-                _bat = _step10$value[1];
+          for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+            var _step11$value = _slicedToArray(_step11.value, 2),
+                _key = _step11$value[0],
+                _bat = _step11$value[1];
 
             var _compteur2 = 0;
 
             if (_bat != null) {
-              var _iterator11 = _createForOfIteratorHelper(this.game.tableau),
-                  _step11;
+              var _iterator12 = _createForOfIteratorHelper(this.game.tableau),
+                  _step12;
 
               try {
-                for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-                  var _colonne3 = _step11.value;
+                for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+                  var _colonne3 = _step12.value;
 
                   if (_colonne3.includes(-_bat) == false) {
                     _compteur2 += 1;
                   }
                 }
               } catch (err) {
-                _iterator11.e(err);
+                _iterator12.e(err);
               } finally {
-                _iterator11.f();
+                _iterator12.f();
               }
 
               if (_compteur2 == 10) {
                 this.game.tour = this.id_ami;
 
-                var _iterator12 = _createForOfIteratorHelper(this.game.tableau.entries()),
-                    _step12;
+                var _iterator13 = _createForOfIteratorHelper(this.game.tableau.entries()),
+                    _step13;
 
                 try {
-                  for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
-                    var _step12$value = _slicedToArray(_step12.value, 2),
-                        _indexCol = _step12$value[0],
-                        _colonne2 = _step12$value[1];
+                  for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+                    var _step13$value = _slicedToArray(_step13.value, 2),
+                        _indexCol = _step13$value[0],
+                        _colonne2 = _step13$value[1];
 
-                    var _iterator13 = _createForOfIteratorHelper(_colonne2.entries()),
-                        _step13;
+                    var _iterator14 = _createForOfIteratorHelper(_colonne2.entries()),
+                        _step14;
 
                     try {
-                      for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
-                        var _step13$value = _slicedToArray(_step13.value, 2),
-                            _indexLigne2 = _step13$value[0],
-                            _elm = _step13$value[1];
+                      for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+                        var _step14$value = _slicedToArray(_step14.value, 2),
+                            _indexLigne2 = _step14$value[0],
+                            _elm = _step14$value[1];
 
                         var _test = -_bat - 10;
 
                         if (_elm == _test) this.game.tableau[_indexCol][_indexLigne2] = 'coulé';
                       }
                     } catch (err) {
-                      _iterator13.e(err);
+                      _iterator14.e(err);
                     } finally {
-                      _iterator13.f();
+                      _iterator14.f();
                     }
                   }
                 } catch (err) {
-                  _iterator12.e(err);
+                  _iterator13.e(err);
                 } finally {
-                  _iterator12.f();
+                  _iterator13.f();
                 }
 
                 this.game.bateaux[_key] = null;
@@ -60417,9 +60541,9 @@ var partie = new Vue({
             }
           }
         } catch (err) {
-          _iterator10.e(err);
+          _iterator11.e(err);
         } finally {
-          _iterator10.f();
+          _iterator11.f();
         }
       }
       /* Détection WINNER */
@@ -60427,30 +60551,13 @@ var partie = new Vue({
 
       var compteur = 0;
 
-      var _iterator14 = _createForOfIteratorHelper(this.game.bateaux_2),
-          _step14;
-
-      try {
-        for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
-          var _bat2 = _step14.value;
-          if (!_bat2) compteur += 1;
-        }
-      } catch (err) {
-        _iterator14.e(err);
-      } finally {
-        _iterator14.f();
-      }
-
-      if (compteur == 5) this.game.winner = this.game.couleur;
-      compteur = 0;
-
-      var _iterator15 = _createForOfIteratorHelper(this.game.bateaux),
+      var _iterator15 = _createForOfIteratorHelper(this.game.bateaux_2),
           _step15;
 
       try {
         for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
-          var _bat3 = _step15.value;
-          if (!_bat3) compteur += 1;
+          var _bat2 = _step15.value;
+          if (!_bat2) compteur += 1;
         }
       } catch (err) {
         _iterator15.e(err);
@@ -60458,11 +60565,28 @@ var partie = new Vue({
         _iterator15.f();
       }
 
+      if (compteur == 5) this.game.winner = this.game.couleur;
+      compteur = 0;
+
+      var _iterator16 = _createForOfIteratorHelper(this.game.bateaux),
+          _step16;
+
+      try {
+        for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
+          var _bat3 = _step16.value;
+          if (!_bat3) compteur += 1;
+        }
+      } catch (err) {
+        _iterator16.e(err);
+      } finally {
+        _iterator16.f();
+      }
+
       if (compteur == 5) {
         if (this.game.couleur == this.user.id) this.game.winner = this.id_ami;else this.game.winner = this.user.id;
       }
 
-      echo["private"]("game.".concat(idGame)).whisper('game', {
+      echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
       });
       this.component_key += 1;
@@ -60479,14 +60603,14 @@ var partie = new Vue({
       var tempCol = 0;
       var gen = 0;
 
-      var _iterator16 = _createForOfIteratorHelper(bateaux.entries()),
-          _step16;
+      var _iterator17 = _createForOfIteratorHelper(bateaux.entries()),
+          _step17;
 
       try {
-        for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
-          var _step16$value = _slicedToArray(_step16.value, 2),
-              index = _step16$value[0],
-              longueur = _step16$value[1];
+        for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
+          var _step17$value = _slicedToArray(_step17.value, 2),
+              index = _step17$value[0],
+              longueur = _step17$value[1];
 
           index += 1;
           gen = false;
@@ -60558,9 +60682,9 @@ var partie = new Vue({
           colonnes = JSON.parse(JSON.stringify(tempCol));
         }
       } catch (err) {
-        _iterator16.e(err);
+        _iterator17.e(err);
       } finally {
-        _iterator16.f();
+        _iterator17.f();
       }
 
       return JSON.parse(JSON.stringify(colonnes));
@@ -60569,8 +60693,8 @@ var partie = new Vue({
 });
 
 if (home.amis != null) {
-  window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
-  Pusher.logToConsole = true;
+  window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); //Pusher.logToConsole = true;
+
   var pusher = new Pusher('4c1d236d405c41c95c80', {
     cluster: 'eu'
   });
@@ -60580,9 +60704,11 @@ if (home.amis != null) {
   });
   var channel2 = pusher.subscribe("joinAmis.".concat(home.user.id));
   channel2.bind('JoinAmisEvent', function (data) {
-    window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami + '&idGame=' + data.idGame;
+    window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami + '&idSession=' + data.idSession;
   });
 } else {
+  window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); //Pusher.logToConsole = true;
+
   window.echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
     broadcaster: 'pusher',
     key: '4c1d236d405c41c95c80',
@@ -60594,9 +60720,52 @@ if (home.amis != null) {
       }
     }
   });
-  echo["private"]("game.".concat(idGame)).listenForWhisper('game', function (data) {
+  echo["private"]("game.".concat(idSession)).listenForWhisper('game', function (data) {
     partie.game = data.game;
     partie.playSound();
+  });
+  echo["private"]("chat.".concat(idSession)).listenForWhisper('chat', function (data) {
+    partie.messages = data.messages;
+  }); //To iron over browser implementation anomalies like prefixes
+
+  partie.GetRTCPeerConnection();
+  partie.GetRTCSessionDescription();
+  partie.GetRTCIceCandidate(); //prepare the caller to use peerconnection
+
+  partie.prepareCaller();
+  echo["private"]("client-candidate").listenForWhisper('client-candidate', function (msg) {
+    partie.caller.addIceCandidate(new RTCIceCandidate(msg.candidate));
+  });
+  echo["private"]("client-sdp").listenForWhisper('client-sdp', function (msg) {
+    partie.getCam().then(function (stream) {
+      partie.localUserMedia = stream;
+      partie.toggleEndCallButton();
+      /*if (window.URL) {
+          document.getElementById("selfview").src = window.URL.createObjectURL(stream);
+      } else {*/
+
+      document.getElementById("selfview").srcObject = stream; //}
+
+      partie.caller.addStream(stream);
+      var sessionDesc = new RTCSessionDescription(msg.sdp);
+      partie.caller.setRemoteDescription(sessionDesc);
+      partie.caller.createAnswer().then(function (sdp) {
+        partie.caller.setLocalDescription(new RTCSessionDescription(sdp));
+        echo["private"]("client-answer").whisper('client-answer', {
+          "sdp": sdp
+        });
+      });
+    })["catch"](function (error) {
+      console.log('an error occured', error);
+    });
+  });
+  echo["private"]("client-answer").listenForWhisper('client-answer', function (answer) {
+    console.log("answer received");
+    partie.caller.setRemoteDescription(new RTCSessionDescription(answer.sdp));
+  });
+  echo["private"]("client-endcall").listenForWhisper('client-endcall', function (nothing) {
+    console.log("endCall");
+    partie.endCall();
   });
 }
 

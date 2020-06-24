@@ -10971,3 +10971,29 @@ a.text-dark:focus {
   background-color: #38c172 !important;
 }
 
+.game {
+  display: inline-block;
+  margin: 10px;
+  margin-right: 2px;
+  width: 48%;
+  padding-top: 17%;
+  border-radius: 15px;
+}
+
+.jouer,
+.title {
+  display: block;
+  color: white;
+  font-weight: bold;
+  border-radius: 15px;
+  padding: 30px 0px 30px 0px;
+  margin: 100px 0px 0px 0px;
+  font-size: 2vw;
+  text-align: center;
+  background-color: #28282d;
+}
+
+.title {
+  background-color: rgba(80, 80, 80, 0.6) !important;
+}
+

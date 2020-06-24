@@ -16,29 +16,17 @@
 
                 <!-- Jeux -->
                 <div v-if="!game.type_partie">
-                    <div class="card">
-                        <div class="card-header">Puissance 4</div>
-
-                        <div class="card-body">
-                            <p>Description du jeu + images</p>
-                            <button v-on:click="initPuissance4()">Jouer</button>
-                        </div>
+                    <div v-on:click="initPuissance4()" class="game" @mouseover="hover = true" @mouseleave="hover = false" style="background: grey url('/images/Puissance4.png') center center no-repeat; background-size: cover;">
+                        <span v-if="!hover" class="title">Puissance 4</span>
+                        <span v-if="hover" class="jouer">Jouer</span>
                     </div>
-                    <div class="card">
-                        <div class="card-header">Morpion</div>
-
-                        <div class="card-body">
-                            <p>Description du jeu + images</p>
-                            <button v-on:click="initMorpion()">Jouer</button>
-                        </div>
+                    <div v-on:click="initMorpion()" class="game" @mouseover="hover1 = true" @mouseleave="hover1 = false" style="background: grey url('/images/Morpion.png') center center no-repeat; background-size: cover;">
+                        <span v-if="!hover1" class="title">Morpion</span>
+                        <span v-if="hover1" class="jouer">Jouer</span>
                     </div>
-                    <div class="card">
-                        <div class="card-header">Bataille navale</div>
-
-                        <div class="card-body">
-                            <p>Description du jeu + images</p>
-                            <button v-on:click="initBatailleNavale()">Jouer</button>
-                        </div>
+                    <div v-on:click="initBatailleNavale()" class="game" @mouseover="hover2 = true" @mouseleave="hover2 = false" style="background: grey url('/images/BatailleNavale2.png') center center no-repeat; background-size: cover;">
+                        <span v-if="!hover2" class="title">Bataille Navale</span>
+                        <span v-if="hover2" class="jouer">Jouer</span>
                     </div>
                 </div>
                 <!-- Jeux -->
@@ -207,15 +195,24 @@
                 <div class="card">
                     <div class="card-header">VISIO</div>
 
-                    <div class="card-body" style="height: 130px;">
-                        visio
+                    <div class="card-body">
+                        <video id="selfview" autoplay playsinline style="height: 50px; width: 100px;"></video>
+                        <video id="remoteview" autoplay playsinline style="height: 100px; width: 200px;"></video>
+                        <button id="endCall" style="display: none;" v-on:click="endCurrentCall()">Fermer vidéo</button>
+                        <button id="makeCall" v-on:click="callUser()">Appel vidéo</button>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">CHAT</div>
 
-                    <div class="card-body" style="height: 130px;">
-                        chat
+                    <div class="card-body">
+                        <div v-for="msg in messages">
+                            <p>@{{msg}}</p>
+                        </div>
+                        <div class="form-group row">
+                            <input id="message" class="col-md-7 form-control" v-model="message" type="text" name="message" placeholder="Ecrivez un message ici !" required>
+                            <button class="col-md-3 ml-1 btn btn-primary" v-on:click="sendMessage(message)">Envoyer</button>
+                        </div>    
                     </div>
                 </div>
             </div>
@@ -224,10 +221,13 @@
     <script>
         window.user = @json($user);
         window.id_ami = @json($id_ami);
-        window.idGame = @json($idGame);
+        window.idSession = @json($idSession);
         window.game = {};
         window.amis = null;
         window.component_key = 0;
-        window.typeBomb = 1
+        window.typeBomb = 1;
+        window.messages = [];
+        window.caller = null;
+        window.localUserMedia = null;
     </script>    
 @endsection

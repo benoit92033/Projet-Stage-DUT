@@ -20,3 +20,23 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
 Broadcast::channel('game.{id}', function ($user, $id) {
     return true; //$user->id === $id;
 });
+
+Broadcast::channel('chat.{id}', function ($user, $id) {
+    return true; //$user->id === $id;
+});
+
+Broadcast::channel('client-candidate', function ($user) {
+    return true; //$user->id === $id;
+});
+
+Broadcast::channel('client-sdp', function ($user) {
+    return true; //$user->id === $id;
+});
+
+Broadcast::channel('client-answer', function ($user) {
+    return true; //$user->id === $id;
+});
+
+Broadcast::channel('client-endcall', function ($user) {
+    return true; //$user->id === $id;
+});

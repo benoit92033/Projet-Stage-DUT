@@ -46,16 +46,133 @@ const partie = new Vue({
         game,
         typeBomb,
         component_key,
-        idGame,
-        user
+        idSession,
+        user,
+        messages,
+        message: '',
+        caller,
+        localUserMedia,
+        hover: false, hover1: false, hover2: false,
     },   
 
     methods:{
+        GetRTCIceCandidate() {
+            window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate || window.msRTCIceCandidate;
+            return window.RTCIceCandidate;
+        },
+
+        GetRTCPeerConnection() {
+            window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.msRTCPeerConnection;
+            return window.RTCPeerConnection;
+        },
+
+        GetRTCSessionDescription() {
+            window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription || window.msRTCSessionDescription;
+            return window.RTCSessionDescription;
+        },
+
+        prepareCaller() {
+            //Initializing a peer connection
+            this.caller = new window.RTCPeerConnection();
+            //Listen for ICE Candidates and send them to remote peers
+            this.caller.onicecandidate = function(evt) {
+              if (!evt.candidate) return;
+              console.log("onicecandidate called");
+              partie.onIceCandidate(partie.caller, evt);
+            };
+            //onaddstream handler to receive remote feed and show in remoteview video element
+            this.caller.onaddstream = function(evt) {
+              console.log("onaddstream called");
+              /*if (window.URL) {
+                document.getElementById("remoteview").src = window.URL.createObjectURL(
+                  evt.stream
+                );
+              } else {*/
+                document.getElementById("remoteview").srcObject = evt.stream;
+              //}
+            };
+        },
+
+        onIceCandidate(peer, evt) {
+            if (evt.candidate) {
+                echo.private(`client-candidate.${idSession}`)
+                    .whisper('client-candidate', {
+                        "candidate": evt.candidate,
+                    });
+            }
+        },
+
+        getCam() {
+            //Get local audio/video feed and show it in selfview video element
+            return navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: true
+            });
+        },
+
+        callUser() {
+            this.getCam()
+              .then(stream => {
+                /*if (window.URL) {
+                  document.getElementById("selfview").src = window.URL.createObjectURL(
+                    stream
+                  );
+                } else {*/
+                  document.getElementById("selfview").srcObject = stream;
+               // }
+                partie.toggleEndCallButton();
+                partie.caller.addStream(stream);
+                partie.localUserMedia = stream;
+                partie.caller.createOffer().then(function(desc) {
+                  partie.caller.setLocalDescription(new RTCSessionDescription(desc));
+                  echo.private(`client-sdp.${idSession}`)
+                    .whisper('client-sdp', {
+                        sdp: desc,
+                        from: partie.user.id
+                    });
+                });
+              })
+              .catch(error => {
+                console.log("an error occured", error);
+              });
+        },
+
+        toggleEndCallButton() {
+            if (document.getElementById("endCall").style.display == "block") {
+              document.getElementById("endCall").style.display = "none";
+            } else {
+              document.getElementById("endCall").style.display = "block";
+            }
+        },
+
+        endCall() {
+            this.caller.close();
+            for (let track of this.localUserMedia.getTracks()) {
+              track.stop();
+            }
+            this.prepareCaller();
+            this.toggleEndCallButton();
+        },
+
+        endCurrentCall() {
+            echo.private(`client-endcall.${idSession}`)
+                .whisper('client-endcall', {});
+            this.endCall();
+        },
+
+        sendMessage(message){
+            this.messages.push(message);
+            this.message = ''
+
+            echo.private(`chat.${idSession}`)
+                .whisper('chat', {messages: this.messages});
+        },
+
         quit(){
             this.game.type_partie = null;
             this.game.sound = '';
             
-            echo.private(`game.${idGame}`)
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
@@ -68,15 +185,16 @@ const partie = new Vue({
             this.game.winner = null;
             this.game.sound = '';
             
-            echo.private(`game.${idGame}`)
+            /* Broadcast */
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
 
         morpion(index){
+            this.game.sound = "/sounds/CraieMorpion.mp3";
             this.game.tableau[index] = user.id;
             this.game.tour = id_ami;
-            this.game.sound = "/sounds/CraieMorpion.mp3";
         
             /* Détection EGALITE */
             if(this.game.tableau.includes(null) == false){
@@ -84,16 +202,7 @@ const partie = new Vue({
             }
 
             /* Détection WINNER */
-            var lines = [
-                [0, 1, 2],
-                [3, 4, 5],
-                [6, 7, 8],
-                [0, 3, 6],
-                [1, 4, 7],
-                [2, 5, 8],
-                [0, 4, 8],
-                [2, 4, 6]
-            ];
+            var lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
             for(let line of lines) {
                 let a = line[0]; let b = line[1]; let c = line[2];
@@ -101,7 +210,8 @@ const partie = new Vue({
                 this.game.winner = this.game.tableau[a]
             }
         
-            echo.private(`game.${idGame}`)
+            /* Broadcast */
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
@@ -124,7 +234,8 @@ const partie = new Vue({
             this.game.winner = null;
             this.game.sound = '';
             
-            echo.private(`game.${idGame}`)
+            /* Broadcast */
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
@@ -153,16 +264,14 @@ const partie = new Vue({
                 this.game.winner = 'Egalité';
 
             /* Détection WINNER */
-            let lines = [
-                [1, 2, 3, 0, 0, 0],
+            let lines = [[1, 2, 3, 0, 0, 0],
                 [-1, -2, -3, 0, 0, 0],
                 [0, 0, 0, 1, 2, 3],
                 [0, 0, 0, -1, -2, -3],
                 [1, 2, 3, 1, 2, 3],
                 [-1, -2, -3, -1, -2, -3],
                 [-1, -2, -3, 1, 2, 3],
-                [1, 2, 3, -1, -2, -3]
-            ];
+                [1, 2, 3, -1, -2, -3]];
 
             for(let line of lines) {
                 let ai = line[0]; let bi = line[1]; let ci = line[2]; let ap = line[3]; let bp = line[4]; let cp = line[5];
@@ -175,7 +284,8 @@ const partie = new Vue({
                 } catch (error) {}
             }
         
-            echo.private(`game.${idGame}`)
+            /* Broadcast */
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
@@ -231,7 +341,7 @@ const partie = new Vue({
             this.game.bombs = [999,3,1];
             this.game.bombs_2 = [999,3,1];
 
-            echo.private(`game.${idGame}`)
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
@@ -359,7 +469,7 @@ const partie = new Vue({
                     this.game.winner = this.user.id;
             }
               
-            echo.private(`game.${idGame}`)
+            echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
             this.component_key += 1
         },
@@ -460,7 +570,7 @@ const partie = new Vue({
 
 if (home.amis != null){
     window.Pusher = require('pusher-js');
-    Pusher.logToConsole = true;
+    //Pusher.logToConsole = true;
 
     var pusher = new Pusher('4c1d236d405c41c95c80', {
         cluster: 'eu'
@@ -473,11 +583,14 @@ if (home.amis != null){
 
     var channel2 = pusher.subscribe(`joinAmis.${home.user.id}`);
     channel2.bind('JoinAmisEvent', function(data) {
-        window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami + '&idGame=' + data.idGame;
+        window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami + '&idSession=' + data.idSession;
     });
 }
 
 else {
+    window.Pusher = require('pusher-js');
+    //Pusher.logToConsole = true;
+
     window.echo = new Echo({
         broadcaster: 'pusher',
         key: '4c1d236d405c41c95c80',
@@ -489,9 +602,62 @@ else {
             }
         }
     });
-    echo.private(`game.${idGame}`)
+    echo.private(`game.${idSession}`)
         .listenForWhisper('game', (data) => {
             partie.game = (data.game);
             partie.playSound();
+        });
+
+    echo.private(`chat.${idSession}`)
+        .listenForWhisper('chat', (data) => {
+            partie.messages = (data.messages);
+        });
+
+    //To iron over browser implementation anomalies like prefixes
+    partie.GetRTCPeerConnection();
+    partie.GetRTCSessionDescription();
+    partie.GetRTCIceCandidate();
+    //prepare the caller to use peerconnection
+    partie.prepareCaller();
+
+    echo.private(`client-candidate.${idSession}`)
+        .listenForWhisper('client-candidate', (msg) => {
+            partie.caller.addIceCandidate(new RTCIceCandidate(msg.candidate));
+        });
+
+    echo.private(`client-sdp.${idSession}`)
+        .listenForWhisper('client-sdp', (msg) => {
+            partie.getCam()
+            .then(stream => {
+                partie.localUserMedia = stream;
+                partie.toggleEndCallButton();
+                /*if (window.URL) {
+                    document.getElementById("selfview").src = window.URL.createObjectURL(stream);
+                } else {*/
+                    document.getElementById("selfview").srcObject = stream;
+                //}
+                partie.caller.addStream(stream);
+                var sessionDesc = new RTCSessionDescription(msg.sdp);
+                partie.caller.setRemoteDescription(sessionDesc);
+                partie.caller.createAnswer().then(function(sdp) {
+                    partie.caller.setLocalDescription(new RTCSessionDescription(sdp));
+                    echo.private(`client-answer.${idSession}`)
+                        .whisper('client-answer', {"sdp": sdp});
+                });
+
+            })
+            .catch(error => {
+                console.log('an error occured', error);
+            })
+        });
+    echo.private(`client-answer.${idSession}`)
+        .listenForWhisper('client-answer', (answer) => {
+            console.log("answer received");
+            partie.caller.setRemoteDescription(new RTCSessionDescription(answer.sdp));
+        });
+    echo.private(`client-endcall.${idSession}`)
+        .listenForWhisper('client-endcall', (nothing) => {
+            console.log("endCall");
+            partie.endCall();
         });
 }
