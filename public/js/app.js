@@ -60028,9 +60028,14 @@ var partie = new Vue({
     localUserMedia: localUserMedia,
     hover: false,
     hover1: false,
-    hover2: false
+    hover2: false,
+    subscribe: subscribe
   },
   methods: {
+    toggleButtons: function toggleButtons() {
+      this.subscribe = true;
+      this.component_key += 1;
+    },
     GetRTCIceCandidate: function GetRTCIceCandidate() {
       window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate || window.msRTCIceCandidate;
       return window.RTCIceCandidate;
@@ -60067,7 +60072,7 @@ var partie = new Vue({
     },
     onIceCandidate: function onIceCandidate(peer, evt) {
       if (evt.candidate) {
-        echo["private"]("client-candidate").whisper('client-candidate', {
+        echo["private"]("client-candidate.".concat(idSession)).whisper('client-candidate', {
           "candidate": evt.candidate
         });
       }
@@ -60093,7 +60098,7 @@ var partie = new Vue({
         partie.localUserMedia = stream;
         partie.caller.createOffer().then(function (desc) {
           partie.caller.setLocalDescription(new RTCSessionDescription(desc));
-          echo["private"]("client-sdp").whisper('client-sdp', {
+          echo["private"]("client-sdp.".concat(idSession)).whisper('client-sdp', {
             sdp: desc,
             from: partie.user.id
           });
@@ -60103,10 +60108,10 @@ var partie = new Vue({
       });
     },
     toggleEndCallButton: function toggleEndCallButton() {
-      if (document.getElementById("endCall").style.display == "block") {
-        document.getElementById("endCall").style.display = "none";
+      if (document.getElementById("endCall").disabled = true) {
+        document.getElementById("endCall").disabled = false;
       } else {
-        document.getElementById("endCall").style.display = "block";
+        document.getElementById("endCall").disabled = true;
       }
     },
     endCall: function endCall() {
@@ -60130,7 +60135,7 @@ var partie = new Vue({
       this.toggleEndCallButton();
     },
     endCurrentCall: function endCurrentCall() {
-      echo["private"]("client-endcall").whisper('client-endcall', {});
+      echo["private"]("client-endcall.".concat(idSession)).whisper('client-endcall', {});
       this.endCall();
     },
     sendMessage: function sendMessage(message) {
@@ -60169,7 +60174,7 @@ var partie = new Vue({
       /* Détection EGALITE */
 
       if (this.game.tableau.includes(null) == false) {
-        this.game.winner = 'Egalité';
+        this.game.winner = -1;
       }
       /* Détection WINNER */
 
@@ -60192,13 +60197,11 @@ var partie = new Vue({
       this.component_key += 1;
     },
     initPuissance4: function initPuissance4() {
-      var colonnes = [[null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null]];
-      this.game.tableau = colonnes;
+      this.game.tableau = [[null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null], [null, null, null, null, null, null]];
       this.game.type_partie = 'puissance4';
       this.game.tour = this.user.id;
       this.game.couleur = this.user.id;
       this.game.winner = null;
-      this.game.sound = '';
       /* Broadcast */
 
       echo["private"]("game.".concat(idSession)).whisper('game', {
@@ -60206,45 +60209,46 @@ var partie = new Vue({
       });
       this.component_key += 1;
     },
-    puissance4: function puissance4(index) {
-      this.game.tableau[index];
+    puissance4: function puissance4(colonne) {
+      var tableau = this.game.tableau;
+      this.game.tour = id_ami;
 
-      var _iterator2 = _createForOfIteratorHelper(this.game.tableau[index].reverse().entries()),
+      var _iterator2 = _createForOfIteratorHelper(tableau[colonne].reverse().entries()),
           _step2;
 
       try {
         for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
           var _step2$value = _slicedToArray(_step2.value, 2),
-              key = _step2$value[0],
+              index = _step2$value[0],
               elem = _step2$value[1];
 
           if (!elem) {
-            this.game.tableau[index].reverse();
-            this.game.tableau[index][5 - key] = user.id;
-            var position = 5 - key;
+            tableau[colonne].reverse();
+            tableau[colonne][5 - index] = user.id;
+            var ligne = 5 - index;
             break;
           }
         }
+        /* Détection EGALITE */
+
       } catch (err) {
         _iterator2.e(err);
       } finally {
         _iterator2.f();
       }
 
-      this.game.tour = id_ami;
-      /* Détection EGALITE */
+      var tableauPlein = true;
 
-      var compteur = 0;
-
-      var _iterator3 = _createForOfIteratorHelper(this.game.tableau),
+      var _iterator3 = _createForOfIteratorHelper(tableau),
           _step3;
 
       try {
         for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-          var colonne = _step3.value;
+          var _elem = _step3.value;
 
-          if (colonne.includes(null) == false) {
-            compteur += 1;
+          if (_elem.includes(null)) {
+            tableauPlein = false;
+            break;
           }
         }
       } catch (err) {
@@ -60253,28 +60257,25 @@ var partie = new Vue({
         _iterator3.f();
       }
 
-      if (compteur == 7) this.game.winner = 'Egalité';
+      if (tableauPlein) this.game.winner = -1;
       /* Détection WINNER */
 
-      var lines = [[1, 2, 3, 0, 0, 0], [-1, -2, -3, 0, 0, 0], [0, 0, 0, 1, 2, 3], [0, 0, 0, -1, -2, -3], [1, 2, 3, 1, 2, 3], [-1, -2, -3, -1, -2, -3], [-1, -2, -3, 1, 2, 3], [1, 2, 3, -1, -2, -3]];
+      var directions = [[1, 2, 3, 0, 0, 0], // Colonne vers bas
+      [-1, -2, -3, 0, 0, 0], // Colonne vers haut
+      [0, 0, 0, 1, 2, 3], // Ligne vers droite
+      [0, 0, 0, -1, -2, -3], // Ligne vers gauche
+      [1, 2, 3, 1, 2, 3], // Diagonale bas-droite
+      [-1, -2, -3, -1, -2, -3], // Diagonale haut-gauche
+      [-1, -2, -3, 1, 2, 3], // Diagonale haut-droite
+      [1, 2, 3, -1, -2, -3]]; // Diagonale bas-gauche
 
-      for (var _i2 = 0, _lines2 = lines; _i2 < _lines2.length; _i2++) {
-        var line = _lines2[_i2];
-        var ai = line[0];
-        var bi = line[1];
-        var ci = line[2];
-        var ap = line[3];
-        var bp = line[4];
-        var cp = line[5];
-
-        try {
-          if (this.game.tableau[index][position] == this.game.tableau[index + ai][position + ap] && this.game.tableau[index][position] == this.game.tableau[index + bi][position + bp] && this.game.tableau[index][position] == this.game.tableau[index + ci][position + cp]) {
-            this.game.winner = this.game.tableau[index][position];
-          }
-        } catch (error) {}
+      for (var _i2 = 0, _directions = directions; _i2 < _directions.length; _i2++) {
+        var dir = _directions[_i2];
+        if (tableau[colonne][ligne] == tableau[colonne + dir[0]][ligne + dir[3]] && tableau[colonne][ligne] == tableau[colonne + dir[1]][ligne + dir[4]] && tableau[colonne][ligne] == tableau[colonne + dir[2]][ligne + dir[5]]) this.game.winner = tableau[colonne][ligne];
       }
-      /* Broadcast */
 
+      this.game.tableau = tableau;
+      /* Broadcast */
 
       echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
@@ -60704,7 +60705,7 @@ if (home.amis != null) {
   });
   var channel2 = pusher.subscribe("joinAmis.".concat(home.user.id));
   channel2.bind('JoinAmisEvent', function (data) {
-    window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami + '&idSession=' + data.idSession;
+    window.location.href = '/joinFriend?broadcast=false&id_join=' + data.ami.id + '&ami_name=' + data.ami.name + '&idSession=' + data.idSession;
   });
 } else {
   window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); //Pusher.logToConsole = true;
@@ -60733,10 +60734,10 @@ if (home.amis != null) {
   partie.GetRTCIceCandidate(); //prepare the caller to use peerconnection
 
   partie.prepareCaller();
-  echo["private"]("client-candidate").listenForWhisper('client-candidate', function (msg) {
+  echo["private"]("client-candidate.".concat(idSession)).listenForWhisper('client-candidate', function (msg) {
     partie.caller.addIceCandidate(new RTCIceCandidate(msg.candidate));
   });
-  echo["private"]("client-sdp").listenForWhisper('client-sdp', function (msg) {
+  echo["private"]("client-sdp.".concat(idSession)).listenForWhisper('client-sdp', function (msg) {
     partie.getCam().then(function (stream) {
       partie.localUserMedia = stream;
       partie.toggleEndCallButton();
@@ -60751,7 +60752,7 @@ if (home.amis != null) {
       partie.caller.setRemoteDescription(sessionDesc);
       partie.caller.createAnswer().then(function (sdp) {
         partie.caller.setLocalDescription(new RTCSessionDescription(sdp));
-        echo["private"]("client-answer").whisper('client-answer', {
+        echo["private"]("client-answer.".concat(idSession)).whisper('client-answer', {
           "sdp": sdp
         });
       });
@@ -60759,14 +60760,15 @@ if (home.amis != null) {
       console.log('an error occured', error);
     });
   });
-  echo["private"]("client-answer").listenForWhisper('client-answer', function (answer) {
+  echo["private"]("client-answer.".concat(idSession)).listenForWhisper('client-answer', function (answer) {
     console.log("answer received");
     partie.caller.setRemoteDescription(new RTCSessionDescription(answer.sdp));
   });
-  echo["private"]("client-endcall").listenForWhisper('client-endcall', function (nothing) {
+  echo["private"]("client-endcall.".concat(idSession)).listenForWhisper('client-endcall', function (nothing) {
     console.log("endCall");
     partie.endCall();
   });
+  partie.toggleButtons();
 }
 
 /***/ }),

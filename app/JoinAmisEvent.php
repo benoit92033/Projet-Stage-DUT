@@ -12,13 +12,13 @@ class JoinAmisEvent implements ShouldBroadcast
   use Dispatchable, InteractsWithSockets, SerializesModels;
 
   public $id_receiver;
-  public $id_ami;
+  public $ami;
   public $idSession;
 
-  public function __construct($id_receiver, $id_ami, $idSession)
+  public function __construct($id_receiver, $ami, $idSession)
   {
       $this->id_receiver = $id_receiver;
-      $this->id_ami = $id_ami;
+      $this->ami = $ami;
       $this->idSession = $idSession;
   }
 

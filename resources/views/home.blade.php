@@ -8,7 +8,7 @@
                     <div class="card-header">Puissance 4</div>
 
                     <div class="card-body">
-                        <img style="height:200px;" src="/images/Puissance4.png" alt="Puissance 4">
+                        <img style="height:200px;" src="{{asset('storage/images/Puissance4.png')}}" alt="Puissance 4">
                         <p>Puissance 4 est un jeu de stratégie très connu qui convient à tout le monde.</p>
                         <p><b>Comment jouer :</b> Déposez vos pions dans les colonnes de la grille du jeu en appuyant sur la colonne choisie. Faites une ligne d'au moins quatre jetons soit verticalement, horizontalement ou en diagonale avant votre adversaire.</p>
                     </div>
@@ -17,7 +17,7 @@
                     <div class="card-header">Morpion</div>
 
                     <div class="card-body">
-                        <img style="height:200px;" src="/images/Morpion.png" alt="Morpion">
+                        <img style="height:200px;" src="{{asset('storage/images/Morpion.png')}}" alt="Morpion">
                         <p>Le morpion est un jeu de réflexion se pratiquant à deux joueurs au tour par tour et dont le but est de créer le premier un alignement sur une grille.</p>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                     <div class="card-header">Bataille navale</div>
 
                     <div class="card-body">
-                        <img style="height:200px;" src="/images/BatailleNavale.png" alt="Bataille Navale">
+                        <img style="height:200px;" src="{{asset('storage/images/BatailleNavale.png')}}" alt="Bataille Navale">
                         <p>La bataille navale, appelée aussi touché-coulé, est un jeu dans lequel deux joueurs doivent tenter de « toucher » les navires adverses.</p>
                         <p>Le gagnant est celui qui parvient à couler tous les navires de l'adversaire avant que tous les siens ne le soient.</p>
                         <p>On dit qu'un navire est coulé si chacune de ses cases a été touchées par un coup de l'adversaire.</p>
@@ -63,6 +63,7 @@
                                     <div class="col-md-0">
                                         <form action="/joinFriend">
                                             <input type="hidden" name="id_join" :value="ami.id_ami" />
+                                            <input type="hidden" name="ami_name" :value="ami.name" />
                                             <input class="btn btn-primary" type="submit" value="Rejoindre">
                                         </form>
                                     </div>
@@ -91,5 +92,6 @@
         window.messages = null;
         window.caller = null;
         window.localUserMedia = null;
+        window.subscribe = null;
     </script>
 @endsection

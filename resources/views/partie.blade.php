@@ -2,7 +2,7 @@
 
 @section('content')
     <div id="partie" class="container" :key="component_key">
-        <h1>Moi : @{{user.name}} - VS - Lui : @{{id_ami}}</h1>
+        <h1 class="display-4 text-center">@{{user.name}} - VS - {{$ami_name}}</h1>
         <div>
             <audio autoplay="autoplay">
                 <source  :src="game.sound" type="audio/mpeg">
@@ -15,16 +15,16 @@
 
 
                 <!-- Jeux -->
-                <div v-if="!game.type_partie">
-                    <div v-on:click="initPuissance4()" class="game" @mouseover="hover = true" @mouseleave="hover = false" style="background: grey url('/images/Puissance4.png') center center no-repeat; background-size: cover;">
+                <div v-if="!game.type_partie && subscribe == true">
+                    <div v-on:click="initPuissance4()" class="game" @mouseover="hover = true" @mouseleave="hover = false" style="background: grey url('{{asset('storage/images/Puissance4.png')}}') center center no-repeat; background-size: cover;">
                         <span v-if="!hover" class="title">Puissance 4</span>
                         <span v-if="hover" class="jouer">Jouer</span>
                     </div>
-                    <div v-on:click="initMorpion()" class="game" @mouseover="hover1 = true" @mouseleave="hover1 = false" style="background: grey url('/images/Morpion.png') center center no-repeat; background-size: cover;">
+                    <div v-on:click="initMorpion()" class="game" @mouseover="hover1 = true" @mouseleave="hover1 = false" style="background: grey url('{{asset('storage/images/Morpion.png')}}') center center no-repeat; background-size: cover;">
                         <span v-if="!hover1" class="title">Morpion</span>
                         <span v-if="hover1" class="jouer">Jouer</span>
                     </div>
-                    <div v-on:click="initBatailleNavale()" class="game" @mouseover="hover2 = true" @mouseleave="hover2 = false" style="background: grey url('/images/BatailleNavale2.png') center center no-repeat; background-size: cover;">
+                    <div v-on:click="initBatailleNavale()" class="game" @mouseover="hover2 = true" @mouseleave="hover2 = false" style="background: grey url('{{asset('storage/images/BatailleNavale2.png')}}') center center no-repeat; background-size: cover;">
                         <span v-if="!hover2" class="title">Bataille Navale</span>
                         <span v-if="hover2" class="jouer">Jouer</span>
                     </div>
@@ -35,11 +35,14 @@
                 <div class="card" v-if="game.type_partie == 'morpion'">
                     <div class="card-header">Morpion</div>
 
-                    <div v-if="game.winner == null" class="card-body">
-                        <h1 v-if="game.tour == user.id">C'est votre tour !</h1>
+                    <div class="card-body">
+                        <h1 v-if="game.winner == user.id">Bravo ! Tu as gagné !</h1>
+                        <h1 v-else-if="game.winner == -1">Égalité !</h1>
+                        <h1 v-else-if="game.winner != null">Tu as perdu !</h1>
+                        <h1 v-else-if="game.tour == user.id">C'est votre tour !</h1>
                         <h1 v-else>C'est pas votre tour !</h1>
                         <div  v-for="(n, index) in game.tableau" :key="n" style="display: inline-block;">
-                            <form v-if="game.tour != user.id">
+                            <form v-if="game.tour != user.id || game.winner != null">
                                 <button v-if="n == game.couleur" disabled class="bg-success-hover-disabled morpion"><i class="far fa-circle fa-10x" style="color: #1AA354;"></i></button>
                                 <button v-else-if="!n && game.couleur == user.id" disabled class="bg-secondary-hover-disabled morpion"><i class="far fa-circle fa-10x" style="color: #6c757d;"></i></button>
                                 <button v-else-if="!n && game.couleur != user.id" disabled class="bg-secondary-hover-disabled morpion"><i class="fas fa-times fa-10x" style="color: #6c757d;"></i></button>
@@ -52,11 +55,8 @@
                                 <button v-else disabled class="bg-primary-hover-disabled morpion"><i class="fas fa-times fa-10x" style="color: #1672BE;"></i></button>
                             </form>
                         </div>
-                    </div>
-                    <div v-else class="card-body">
-                        <p>Winner : @{{game.winner}}</p>
-                        <button v-on:click="initMorpion()">Rejouer</button>
-                        <button v-on:click="quit()">Quitter</button>
+                        <button class="col-md-3 ml-1 mt-1 btn btn-primary" v-on:click="initMorpion()">Rejouer</button>
+                        <button class="col-md-3 ml-1 mt-1 btn btn-primary" v-on:click="quit()">Quitter</button>
                     </div>
                 </div>
                 <!-- Morpion -->
@@ -65,8 +65,11 @@
                 <div class="card" v-if="game.type_partie == 'puissance4'">
                     <div class="card-header">Puissance 4</div>
 
-                    <div v-if="game.winner == null" class="card-body">
-                        <h1 v-if="game.tour == user.id">C'est votre tour !</h1>
+                    <div class="card-body">
+                        <h1 v-if="game.winner == user.id">Bravo ! Tu as gagné !</h1>
+                        <h1 v-else-if="game.winner == -1">Égalité !</h1>
+                        <h1 v-else-if="game.winner != null">Tu as perdu !</h1>
+                        <h1 v-else-if="game.tour == user.id">C'est votre tour !</h1>
                         <h1 v-else>C'est pas votre tour !</h1>
                         <div  v-for="(colonne, index) in game.tableau" style="display: inline-block;">
                             <div  v-for="n in colonne" :key="n">
@@ -77,16 +80,13 @@
                                 </form>
                                 <form v-else>
                                     <button v-if="n == game.couleur" disabled class="bg-secondary-hover-disabled puissance4"><i class="fas fa-circle fa-4x" style="color: #e3342f;"></i></button>
-                                    <button v-else-if="!n"  v-on:click="puissance4(index)" class="bg-secondary puissance4"><i class="fas fa-circle fa-4x" style="color: #ffffff;"></i></button>
+                                    <button v-else-if="!n && game.winner == null"  v-on:click="puissance4(index)" class="bg-secondary puissance4"><i class="fas fa-circle fa-4x" style="color: #ffffff;"></i></button>
                                     <button v-else disabled class="bg-secondary-hover-disabled puissance4"><i class="fas fa-circle fa-4x" style="color: #ffed4a;"></i></button>
                                 </form>
                             </div>
                         </div>
-                    </div>
-                    <div v-else class="card-body">
-                        <p>Winner : @{{game.winner}}</p>
-                        <button v-on:click="initPuissance4()">Rejouer</button>
-                        <button v-on:click="quit()">Quitter</button>
+                        <button class="col-md-3 ml-1 mt-1 btn btn-primary" v-on:click="initPuissance4()">Rejouer</button>
+                        <button class="col-md-3 ml-1 mt-1 btn btn-primary" v-on:click="quit()">Quitter</button>
                     </div>
                 </div>
                 <!-- Puissance 4 -->
@@ -95,8 +95,10 @@
                 <div class="card" v-if="game.type_partie == 'batailleNavale'">
                     <div class="card-header">Bataille navale</div>
 
-                    <div v-if="game.winner == null" class="card-body">
-                        <h1 v-if="game.tour == user.id">C'est votre tour !</h1>
+                    <div class="card-body">
+                        <h1 v-if="game.winner == user.id">Bravo ! Tu as gagné !</h1>
+                        <h1 v-else-if="game.winner != null">Tu as perdu !</h1>
+                        <h1 v-else-if="game.tour == user.id">C'est votre tour !</h1>
                         <h1 v-else>C'est pas votre tour !</h1>
 
 
@@ -114,7 +116,7 @@
                             <div style="width: 15px; display: inline-block;"></div>
                             <div v-for="(colonne, indexColonne) in game.tableau_2" :key="colonne" style="display: inline-block; background-color: #3490dc;">
                                 <div  v-for="(n, indexLigne) in colonne" :key="n">
-                                    <form v-if="game.tour != user.id">
+                                    <form v-if="game.tour != user.id || game.winner != null">
                                         <button v-if="n == user.id" disabled class="bg-primary-hover-disabled batailleNavale"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
                                         <button v-if="n < -10" disabled class="bg-secondary-hover-disabled bateau"><i class="fas fa-fire" style="color:orange;"></i></button>
                                         <button v-if="n == 'coulé'" disabled class="bg-secondary-hover-disabled bateau"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
@@ -153,7 +155,7 @@
                             <div style="width: 15px; display: inline-block;"></div>
                             <div v-for="(colonne, indexColonne) in game.tableau" :key="colonne" style="display: inline-block; background-color: #3490dc;">
                                 <div  v-for="(n, indexLigne) in colonne" :key="n">
-                                    <form v-if="game.tour != user.id">
+                                    <form v-if="game.tour != user.id || game.winner != null">
                                         <button v-if="n == user.id" disabled class="bg-primary-hover-disabled batailleNavale"><i class="fas fa-tint" style="color: #1672BE;"></i></button>
                                         <button v-if="n < -10" disabled class="bg-secondary-hover-disabled bateau"><i class="fas fa-fire" style="color:orange;"></i></button>
                                         <button v-if="n == 'coulé'" disabled class="bg-secondary-hover-disabled bateau"><i class="fas fa-skull" style="color: #e3342f;"></i></button>
@@ -179,11 +181,8 @@
 
 
 
-                    </div>
-                    <div v-else class="card-body">
-                        <p>Winner : @{{game.winner}}</p>
-                        <button v-on:click="initBatailleNavale()">Rejouer</button>
-                        <button v-on:click="quit()">Quitter</button>
+                        <button class="col-md-3 ml-1 mt-1 btn btn-primary" v-on:click="initBatailleNavale()">Rejouer</button>
+                        <button class="col-md-3 ml-1 mt-1 btn btn-primary" v-on:click="quit()">Quitter</button>
                     </div>
                 </div>
                 <!-- Bataille navale -->
@@ -193,13 +192,14 @@
             </div>
             <div class="col">
                 <div class="card">
-                    <div class="card-header">VISIO</div>
+                    <div class="card-header">
+                        <button class="btn btn-primary" id="makeCall" v-on:click="callUser()">Appel vidéo <i class="fas fa-phone"></i></button>
+                        <button class="btn btn-primary" disabled id="endCall" v-on:click="endCurrentCall()">Fermer vidéo <i class="fas fa-phone-slash"></i></button>
+                    </div>
 
                     <div class="card-body">
                         <video id="selfview" autoplay playsinline style="height: 50px; width: 100px;"></video>
                         <video id="remoteview" autoplay playsinline style="height: 100px; width: 200px;"></video>
-                        <button id="endCall" style="display: none;" v-on:click="endCurrentCall()">Fermer vidéo</button>
-                        <button id="makeCall" v-on:click="callUser()">Appel vidéo</button>
                     </div>
                 </div>
                 <div class="card">
@@ -229,5 +229,6 @@
         window.messages = [];
         window.caller = null;
         window.localUserMedia = null;
+        window.subscribe = false;
     </script>    
 @endsection

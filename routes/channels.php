@@ -25,18 +25,18 @@ Broadcast::channel('chat.{id}', function ($user, $id) {
     return true; //$user->id === $id;
 });
 
-Broadcast::channel('client-candidate', function ($user) {
+Broadcast::channel('client-candidate.{id}', function ($user, $id) {
     return true; //$user->id === $id;
 });
 
-Broadcast::channel('client-sdp', function ($user) {
+Broadcast::channel('client-sdp.{id}', function ($user, $id) {
     return true; //$user->id === $id;
 });
 
-Broadcast::channel('client-answer', function ($user) {
+Broadcast::channel('client-answer.{id}', function ($user, $id) {
     return true; //$user->id === $id;
 });
 
-Broadcast::channel('client-endcall', function ($user) {
+Broadcast::channel('client-endcall.{id}', function ($user, $id) {
     return true; //$user->id === $id;
 });

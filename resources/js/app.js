@@ -53,9 +53,15 @@ const partie = new Vue({
         caller,
         localUserMedia,
         hover: false, hover1: false, hover2: false,
+        subscribe
     },   
 
     methods:{
+        toggleButtons() {
+            this.subscribe = true;
+            this.component_key += 1;
+        },
+
         GetRTCIceCandidate() {
             window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate || window.msRTCIceCandidate;
             return window.RTCIceCandidate;
@@ -138,10 +144,10 @@ const partie = new Vue({
         },
 
         toggleEndCallButton() {
-            if (document.getElementById("endCall").style.display == "block") {
-              document.getElementById("endCall").style.display = "none";
+            if (document.getElementById("endCall").disabled = true) {
+              document.getElementById("endCall").disabled = false;
             } else {
-              document.getElementById("endCall").style.display = "block";
+              document.getElementById("endCall").disabled = true;
             }
         },
 
@@ -198,7 +204,7 @@ const partie = new Vue({
         
             /* Détection EGALITE */
             if(this.game.tableau.includes(null) == false){
-                this.game.winner = 'Egalité';
+                this.game.winner = -1;
             }
 
             /* Détection WINNER */
@@ -217,7 +223,7 @@ const partie = new Vue({
         },
 
         initPuissance4(){
-            let colonnes = [
+            this.game.tableau = [
                 [null, null, null, null, null, null],
                 [null, null, null, null, null, null],
                 [null, null, null, null, null, null],
@@ -225,14 +231,12 @@ const partie = new Vue({
                 [null, null, null, null, null, null],
                 [null, null, null, null, null, null],
                 [null, null, null, null, null, null]
-            ]
+            ];
             
-            this.game.tableau = colonnes;
             this.game.type_partie = 'puissance4';
             this.game.tour = this.user.id;
             this.game.couleur = this.user.id;
             this.game.winner = null;
-            this.game.sound = '';
             
             /* Broadcast */
             echo.private(`game.${idSession}`)
@@ -240,50 +244,50 @@ const partie = new Vue({
             this.component_key += 1
         },
 
-        puissance4(index){
-            this.game.tableau[index];
-            for(let [key, elem] of this.game.tableau[index].reverse().entries()){
+        puissance4(colonne){
+            let tableau = this.game.tableau;
+            this.game.tour = id_ami;
+
+            for(let [index, elem] of tableau[colonne].reverse().entries()){
                 if (!elem){
-                    this.game.tableau[index].reverse()
-                    this.game.tableau[index][5-key] = user.id;
-                    var position = 5-key;
+                    tableau[colonne].reverse()
+                    tableau[colonne][5-index] = user.id;
+                    var ligne = 5-index;
                     break;
                 }
             }
 
-            this.game.tour = id_ami;
-
             /* Détection EGALITE */
-            let compteur = 0;
-            for(let colonne of this.game.tableau){
-                if(colonne.includes(null) == false){
-                    compteur += 1;
+            let tableauPlein = true;
+            for(let elem of tableau){
+                if(elem.includes(null)){
+                    tableauPlein = false;
+                    break;
                 }
             }
-            if (compteur == 7)
-                this.game.winner = 'Egalité';
+            if (tableauPlein)
+                this.game.winner = -1;
 
             /* Détection WINNER */
-            let lines = [[1, 2, 3, 0, 0, 0],
-                [-1, -2, -3, 0, 0, 0],
-                [0, 0, 0, 1, 2, 3],
-                [0, 0, 0, -1, -2, -3],
-                [1, 2, 3, 1, 2, 3],
-                [-1, -2, -3, -1, -2, -3],
-                [-1, -2, -3, 1, 2, 3],
-                [1, 2, 3, -1, -2, -3]];
+            let directions = [
+                [1, 2, 3, 0, 0, 0],       // Colonne vers bas
+                [-1, -2, -3, 0, 0, 0],    // Colonne vers haut
+                [0, 0, 0, 1, 2, 3],       // Ligne vers droite
+                [0, 0, 0, -1, -2, -3],    // Ligne vers gauche
+                [1, 2, 3, 1, 2, 3],       // Diagonale bas-droite
+                [-1, -2, -3, -1, -2, -3], // Diagonale haut-gauche
+                [-1, -2, -3, 1, 2, 3],    // Diagonale haut-droite
+                [1, 2, 3, -1, -2, -3]];   // Diagonale bas-gauche
 
-            for(let line of lines) {
-                let ai = line[0]; let bi = line[1]; let ci = line[2]; let ap = line[3]; let bp = line[4]; let cp = line[5];
-                try {
-                    if (this.game.tableau[index][position] == this.game.tableau[index + ai][position + ap] 
-                    && this.game.tableau[index][position] == this.game.tableau[index + bi][position + bp] 
-                    && this.game.tableau[index][position] == this.game.tableau[index + ci][position + cp]){
-                        this.game.winner = this.game.tableau[index][position];
-                    }
-                } catch (error) {}
+            for(let dir of directions) {
+                if (tableau[colonne][ligne] == tableau[colonne + dir[0]][ligne + dir[3]] 
+                 && tableau[colonne][ligne] == tableau[colonne + dir[1]][ligne + dir[4]] 
+                 && tableau[colonne][ligne] == tableau[colonne + dir[2]][ligne + dir[5]])
+                    this.game.winner = tableau[colonne][ligne];
             }
-        
+            
+            this.game.tableau = tableau
+
             /* Broadcast */
             echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
@@ -583,7 +587,7 @@ if (home.amis != null){
 
     var channel2 = pusher.subscribe(`joinAmis.${home.user.id}`);
     channel2.bind('JoinAmisEvent', function(data) {
-        window.location.href = '/joinFriend?broadcast=false&id_join=' + data.id_ami + '&idSession=' + data.idSession;
+        window.location.href = '/joinFriend?broadcast=false&id_join=' + data.ami.id + '&ami_name=' + data.ami.name + '&idSession=' + data.idSession;
     });
 }
 
@@ -660,4 +664,6 @@ else {
             console.log("endCall");
             partie.endCall();
         });
+
+    partie.toggleButtons()
 }

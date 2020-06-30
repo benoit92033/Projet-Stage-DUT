@@ -99,12 +99,13 @@ class AmisController extends Controller
 
         if(!isset($request->broadcast)){
             $idSession = Str::random(10);
-            broadcast(new JoinAmisEvent($id_join, Auth::user()->id, $idSession));
+            broadcast(new JoinAmisEvent($id_join, Auth::user(), $idSession));
         }
         else $idSession = $request->idSession;
 
         return view('partie',[
             "id_ami" => $id_join,
+            "ami_name" => $request->ami_name,
             "user" => Auth::user(),
             "type_partie" => '',
             "idSession" => $idSession
