@@ -39,8 +39,8 @@
                         <h1 v-if="game.winner == user.id">Bravo ! Tu as gagné !</h1>
                         <h1 v-else-if="game.winner == -1">Égalité !</h1>
                         <h1 v-else-if="game.winner != null">Tu as perdu !</h1>
-                        <h1 v-else-if="game.tour == user.id">C'est votre tour !</h1>
-                        <h1 v-else>C'est pas votre tour !</h1>
+                        <h1 v-else-if="game.tour == user.id">C'est ton tour !</h1>
+                        <h1 v-else>Attends pour jouer !</h1>
                         <div  v-for="(n, index) in game.tableau" :key="n" style="display: inline-block;">
                             <form v-if="game.tour != user.id || game.winner != null">
                                 <button v-if="n == game.couleur" disabled class="bg-success-hover-disabled morpion"><i class="far fa-circle fa-10x" style="color: #1AA354;"></i></button>
@@ -69,8 +69,8 @@
                         <h1 v-if="game.winner == user.id">Bravo ! Tu as gagné !</h1>
                         <h1 v-else-if="game.winner == -1">Égalité !</h1>
                         <h1 v-else-if="game.winner != null">Tu as perdu !</h1>
-                        <h1 v-else-if="game.tour == user.id">C'est votre tour !</h1>
-                        <h1 v-else>C'est pas votre tour !</h1>
+                        <h1 v-else-if="game.tour == user.id">C'est ton tour !</h1>
+                        <h1 v-else>Attends pour jouer !</h1>
                         <div  v-for="(colonne, index) in game.tableau" style="display: inline-block;">
                             <div  v-for="n in colonne" :key="n">
                                 <form v-if="game.tour != user.id">
@@ -98,8 +98,8 @@
                     <div class="card-body">
                         <h1 v-if="game.winner == user.id">Bravo ! Tu as gagné !</h1>
                         <h1 v-else-if="game.winner != null">Tu as perdu !</h1>
-                        <h1 v-else-if="game.tour == user.id">C'est votre tour !</h1>
-                        <h1 v-else>C'est pas votre tour !</h1>
+                        <h1 v-else-if="game.tour == user.id">C'est ton tour !</h1>
+                        <h1 v-else>Attends pour jouer !</h1>
 
 
 
@@ -131,12 +131,12 @@
                                 </div>
                             </div>
                             <div>
-                                <button v-if="typeBomb == 1" disabled class="bg-warning" style="height: 75px; width: 75px;">Bombe</button>
-                                <button v-else v-on:click="changeBomb(1)" class="bg-secondary" style="height: 75px; width: 75px;">Bombe</button>
-                                <button v-if="typeBomb == 2" disabled class="bg-warning" style="height: 75px; width: 75px;">Missile @{{game.bombs_2[1]}}</button>
-                                <button v-else v-on:click="changeBomb(2)" class="bg-secondary" style="height: 75px; width: 75px;">Missile @{{game.bombs_2[1]}}</button>
-                                <button v-if="typeBomb == 3" disabled class="bg-warning" style="height: 75px; width: 75px;">Boom ! @{{game.bombs_2[2]}}</button>
-                                <button v-else v-on:click="changeBomb(3)" class="bg-secondary" style="height: 75px; width: 75px;">Boom ! @{{game.bombs_2[2]}}</button>
+                                <button v-if="typeBomb == 1" disabled class="mt-1 btn btn-success" style="height: 75px; width: 75px;">Bombe</button>
+                                <button v-else v-on:click="changeBomb(1)" class="mt-1 btn btn-secondary" style="height: 75px; width: 75px;">Bombe</button>
+                                <button v-if="typeBomb == 2" disabled class="mt-1 btn btn-success" style="height: 75px; width: 75px;">Missile @{{game.bombs_2[1]}}</button>
+                                <button v-else v-on:click="changeBomb(2)" class="mt-1 btn btn-secondary" style="height: 75px; width: 75px;">Missile @{{game.bombs_2[1]}}</button>
+                                <button v-if="typeBomb == 3" disabled class="mt-1 btn btn-success" style="height: 75px; width: 75px;">Boom ! @{{game.bombs_2[2]}}</button>
+                                <button v-else v-on:click="changeBomb(3)" class="mt-1 btn btn-secondary" style="height: 75px; width: 75px;">Boom ! @{{game.bombs_2[2]}}</button>
                             </div>
                         </div>
 
@@ -170,12 +170,12 @@
                                 </div>
                             </div>
                             <div>
-                                <button v-if="typeBomb == 1" disabled class="bg-warning" style="height: 75px; width: 75px;">Bombe</button>
-                                <button v-else v-on:click="changeBomb(1)" class="bg-secondary" style="height: 75px; width: 75px;">Bombe</button>
-                                <button v-if="typeBomb == 2" disabled class="bg-warning" style="height: 75px; width: 75px;">Missile @{{game.bombs[1]}}</button>
-                                <button v-else v-on:click="changeBomb(2)" class="bg-secondary" style="height: 75px; width: 75px;">Missile @{{game.bombs[1]}}</button>
-                                <button v-if="typeBomb == 3" disabled class="bg-warning" style="height: 75px; width: 75px;">Boom ! @{{game.bombs[2]}}</button>
-                                <button v-else v-on:click="changeBomb(3)" class="bg-secondary" style="height: 75px; width: 75px;">Boom ! @{{game.bombs[2]}}</button>
+                                <button v-if="typeBomb == 1" disabled class="mt-1 btn btn-success" style="height: 75px; width: 75px;">Bombe</button>
+                                <button v-else v-on:click="changeBomb(1)" class="mt-1 btn btn-secondary" style="height: 75px; width: 75px;">Bombe</button>
+                                <button v-if="typeBomb == 2" disabled class="mt-1 btn btn-success" style="height: 75px; width: 75px;">Missile @{{game.bombs[1]}}</button>
+                                <button v-else v-on:click="changeBomb(2)" class="mt-1 btn btn-secondary" style="height: 75px; width: 75px;">Missile @{{game.bombs[1]}}</button>
+                                <button v-if="typeBomb == 3" disabled class="mt-1 btn btn-success" style="height: 75px; width: 75px;">Boom ! @{{game.bombs[2]}}</button>
+                                <button v-else v-on:click="changeBomb(3)" class="mt-1 btn btn-secondary" style="height: 75px; width: 75px;">Boom ! @{{game.bombs[2]}}</button>
                             </div>
                         </div>
 
@@ -193,7 +193,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-header">
-                        <button class="btn btn-primary" id="makeCall" v-on:click="callUser()">Appel vidéo <i class="fas fa-phone"></i></button>
+                        <button v-if="subscribe == true" class="btn btn-primary" id="makeCall" v-on:click="callUser()">Appel vidéo <i class="fas fa-phone"></i></button>
                         <button class="btn btn-primary" disabled id="endCall" v-on:click="endCurrentCall()">Fermer vidéo <i class="fas fa-phone-slash"></i></button>
                     </div>
 
@@ -211,7 +211,7 @@
                         </div>
                         <div class="form-group row">
                             <input id="message" class="col-md-7 form-control" v-model="message" type="text" name="message" placeholder="Ecrivez un message ici !" required>
-                            <button class="col-md-3 ml-1 btn btn-primary" v-on:click="sendMessage(message)">Envoyer</button>
+                            <button v-if="subscribe == true" class="col-md-3 ml-1 btn btn-primary" v-on:click="sendMessage(message)">Envoyer</button>
                         </div>    
                     </div>
                 </div>
@@ -222,13 +222,6 @@
         window.user = @json($user);
         window.id_ami = @json($id_ami);
         window.idSession = @json($idSession);
-        window.game = {};
         window.amis = null;
-        window.component_key = 0;
-        window.typeBomb = 1;
-        window.messages = [];
-        window.caller = null;
-        window.localUserMedia = null;
-        window.subscribe = false;
     </script>    
 @endsection

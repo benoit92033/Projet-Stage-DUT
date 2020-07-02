@@ -60010,26 +60010,34 @@ var home = new Vue({
   el: '#home',
   data: {
     user: user,
-    amis: amis
+    amis: amis,
+    subscribe: false,
+    component_key: 1
+  },
+  methods: {
+    toggleButtons: function toggleButtons() {
+      this.subscribe = true;
+      this.component_key += 1;
+    }
   }
 });
 var partie = new Vue({
   el: '#partie',
   data: {
     id_ami: id_ami,
-    game: game,
-    typeBomb: typeBomb,
-    component_key: component_key,
+    game: {},
+    typeBomb: 1,
+    component_key: 1,
     idSession: idSession,
     user: user,
-    messages: messages,
+    messages: [],
     message: '',
-    caller: caller,
-    localUserMedia: localUserMedia,
+    caller: null,
+    localUserMedia: null,
     hover: false,
     hover1: false,
     hover2: false,
-    subscribe: subscribe
+    subscribe: false
   },
   methods: {
     toggleButtons: function toggleButtons() {
@@ -60209,46 +60217,45 @@ var partie = new Vue({
       });
       this.component_key += 1;
     },
-    puissance4: function puissance4(colonne) {
-      var tableau = this.game.tableau;
-      this.game.tour = id_ami;
+    puissance4: function puissance4(index) {
+      this.game.tableau[index];
 
-      var _iterator2 = _createForOfIteratorHelper(tableau[colonne].reverse().entries()),
+      var _iterator2 = _createForOfIteratorHelper(this.game.tableau[index].reverse().entries()),
           _step2;
 
       try {
         for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
           var _step2$value = _slicedToArray(_step2.value, 2),
-              index = _step2$value[0],
+              key = _step2$value[0],
               elem = _step2$value[1];
 
           if (!elem) {
-            tableau[colonne].reverse();
-            tableau[colonne][5 - index] = user.id;
-            var ligne = 5 - index;
+            this.game.tableau[index].reverse();
+            this.game.tableau[index][5 - key] = user.id;
+            var position = 5 - key;
             break;
           }
         }
-        /* Détection EGALITE */
-
       } catch (err) {
         _iterator2.e(err);
       } finally {
         _iterator2.f();
       }
 
-      var tableauPlein = true;
+      this.game.tour = id_ami;
+      /* Détection EGALITE */
 
-      var _iterator3 = _createForOfIteratorHelper(tableau),
+      var compteur = 0;
+
+      var _iterator3 = _createForOfIteratorHelper(this.game.tableau),
           _step3;
 
       try {
         for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-          var _elem = _step3.value;
+          var colonne = _step3.value;
 
-          if (_elem.includes(null)) {
-            tableauPlein = false;
-            break;
+          if (colonne.includes(null) == false) {
+            compteur += 1;
           }
         }
       } catch (err) {
@@ -60257,25 +60264,28 @@ var partie = new Vue({
         _iterator3.f();
       }
 
-      if (tableauPlein) this.game.winner = -1;
+      if (compteur == 7) this.game.winner = 'Egalité';
       /* Détection WINNER */
 
-      var directions = [[1, 2, 3, 0, 0, 0], // Colonne vers bas
-      [-1, -2, -3, 0, 0, 0], // Colonne vers haut
-      [0, 0, 0, 1, 2, 3], // Ligne vers droite
-      [0, 0, 0, -1, -2, -3], // Ligne vers gauche
-      [1, 2, 3, 1, 2, 3], // Diagonale bas-droite
-      [-1, -2, -3, -1, -2, -3], // Diagonale haut-gauche
-      [-1, -2, -3, 1, 2, 3], // Diagonale haut-droite
-      [1, 2, 3, -1, -2, -3]]; // Diagonale bas-gauche
+      var lines = [[1, 2, 3, 0, 0, 0], [-1, -2, -3, 0, 0, 0], [0, 0, 0, 1, 2, 3], [0, 0, 0, -1, -2, -3], [1, 2, 3, 1, 2, 3], [-1, -2, -3, -1, -2, -3], [-1, -2, -3, 1, 2, 3], [1, 2, 3, -1, -2, -3]];
 
-      for (var _i2 = 0, _directions = directions; _i2 < _directions.length; _i2++) {
-        var dir = _directions[_i2];
-        if (tableau[colonne][ligne] == tableau[colonne + dir[0]][ligne + dir[3]] && tableau[colonne][ligne] == tableau[colonne + dir[1]][ligne + dir[4]] && tableau[colonne][ligne] == tableau[colonne + dir[2]][ligne + dir[5]]) this.game.winner = tableau[colonne][ligne];
+      for (var _i2 = 0, _lines2 = lines; _i2 < _lines2.length; _i2++) {
+        var line = _lines2[_i2];
+        var ai = line[0];
+        var bi = line[1];
+        var ci = line[2];
+        var ap = line[3];
+        var bp = line[4];
+        var cp = line[5];
+
+        try {
+          if (this.game.tableau[index][position] == this.game.tableau[index + ai][position + ap] && this.game.tableau[index][position] == this.game.tableau[index + bi][position + bp] && this.game.tableau[index][position] == this.game.tableau[index + ci][position + cp]) {
+            this.game.winner = this.game.tableau[index][position];
+          }
+        } catch (error) {}
       }
-
-      this.game.tableau = tableau;
       /* Broadcast */
+
 
       echo["private"]("game.".concat(idSession)).whisper('game', {
         game: this.game
@@ -60707,6 +60717,9 @@ if (home.amis != null) {
   channel2.bind('JoinAmisEvent', function (data) {
     window.location.href = '/joinFriend?broadcast=false&id_join=' + data.ami.id + '&ami_name=' + data.ami.name + '&idSession=' + data.idSession;
   });
+  channel2.bind('pusher:subscription_succeeded', function () {
+    home.toggleButtons();
+  });
 } else {
   window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); //Pusher.logToConsole = true;
 
@@ -60768,7 +60781,9 @@ if (home.amis != null) {
     console.log("endCall");
     partie.endCall();
   });
-  partie.toggleButtons();
+  setTimeout(function () {
+    partie.toggleButtons();
+  }, 2000);
 }
 
 /***/ }),

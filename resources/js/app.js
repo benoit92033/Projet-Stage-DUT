@@ -34,7 +34,16 @@ const home = new Vue({
 
     data: {
         user,
-        amis
+        amis,
+        subscribe: false,
+        component_key: 1
+    },
+
+    methods:{
+        toggleButtons() {
+            this.subscribe = true;
+            this.component_key += 1;
+        }
     }
 });
 
@@ -43,17 +52,17 @@ const partie = new Vue({
 
     data: {
         id_ami,
-        game,
-        typeBomb,
-        component_key,
+        game: {},
+        typeBomb: 1,
+        component_key: 1,
         idSession,
         user,
-        messages,
+        messages: [],
         message: '',
-        caller,
-        localUserMedia,
+        caller: null,
+        localUserMedia: null,
         hover: false, hover1: false, hover2: false,
-        subscribe
+        subscribe: false
     },   
 
     methods:{
@@ -244,50 +253,50 @@ const partie = new Vue({
             this.component_key += 1
         },
 
-        puissance4(colonne){
-            let tableau = this.game.tableau;
+        puissance4(index){
+            this.game.tableau[index];
+            for(let [key, elem] of this.game.tableau[index].reverse().entries()){
+                if (!elem){
+                    this.game.tableau[index].reverse()
+                    this.game.tableau[index][5-key] = user.id;
+                    var position = 5-key;
+                    break;
+                }
+            }
+
             this.game.tour = id_ami;
 
-            for(let [index, elem] of tableau[colonne].reverse().entries()){
-                if (!elem){
-                    tableau[colonne].reverse()
-                    tableau[colonne][5-index] = user.id;
-                    var ligne = 5-index;
-                    break;
-                }
-            }
-
             /* Détection EGALITE */
-            let tableauPlein = true;
-            for(let elem of tableau){
-                if(elem.includes(null)){
-                    tableauPlein = false;
-                    break;
+            let compteur = 0;
+            for(let colonne of this.game.tableau){
+                if(colonne.includes(null) == false){
+                    compteur += 1;
                 }
             }
-            if (tableauPlein)
-                this.game.winner = -1;
+            if (compteur == 7)
+                this.game.winner = 'Egalité';
 
             /* Détection WINNER */
-            let directions = [
-                [1, 2, 3, 0, 0, 0],       // Colonne vers bas
-                [-1, -2, -3, 0, 0, 0],    // Colonne vers haut
-                [0, 0, 0, 1, 2, 3],       // Ligne vers droite
-                [0, 0, 0, -1, -2, -3],    // Ligne vers gauche
-                [1, 2, 3, 1, 2, 3],       // Diagonale bas-droite
-                [-1, -2, -3, -1, -2, -3], // Diagonale haut-gauche
-                [-1, -2, -3, 1, 2, 3],    // Diagonale haut-droite
-                [1, 2, 3, -1, -2, -3]];   // Diagonale bas-gauche
+            let lines = [[1, 2, 3, 0, 0, 0],
+                [-1, -2, -3, 0, 0, 0],
+                [0, 0, 0, 1, 2, 3],
+                [0, 0, 0, -1, -2, -3],
+                [1, 2, 3, 1, 2, 3],
+                [-1, -2, -3, -1, -2, -3],
+                [-1, -2, -3, 1, 2, 3],
+                [1, 2, 3, -1, -2, -3]];
 
-            for(let dir of directions) {
-                if (tableau[colonne][ligne] == tableau[colonne + dir[0]][ligne + dir[3]] 
-                 && tableau[colonne][ligne] == tableau[colonne + dir[1]][ligne + dir[4]] 
-                 && tableau[colonne][ligne] == tableau[colonne + dir[2]][ligne + dir[5]])
-                    this.game.winner = tableau[colonne][ligne];
+            for(let line of lines) {
+                let ai = line[0]; let bi = line[1]; let ci = line[2]; let ap = line[3]; let bp = line[4]; let cp = line[5];
+                try {
+                    if (this.game.tableau[index][position] == this.game.tableau[index + ai][position + ap] 
+                    && this.game.tableau[index][position] == this.game.tableau[index + bi][position + bp] 
+                    && this.game.tableau[index][position] == this.game.tableau[index + ci][position + cp]){
+                        this.game.winner = this.game.tableau[index][position];
+                    }
+                } catch (error) {}
             }
-            
-            this.game.tableau = tableau
-
+        
             /* Broadcast */
             echo.private(`game.${idSession}`)
                 .whisper('game', {game: this.game});
@@ -589,6 +598,10 @@ if (home.amis != null){
     channel2.bind('JoinAmisEvent', function(data) {
         window.location.href = '/joinFriend?broadcast=false&id_join=' + data.ami.id + '&ami_name=' + data.ami.name + '&idSession=' + data.idSession;
     });
+
+    channel2.bind('pusher:subscription_succeeded', function() {
+        home.toggleButtons()
+    });
 }
 
 else {
@@ -665,5 +678,5 @@ else {
             partie.endCall();
         });
 
-    partie.toggleButtons()
+    setTimeout(function(){ partie.toggleButtons() }, 2000);
 }

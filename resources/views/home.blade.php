@@ -64,7 +64,7 @@
                                         <form action="/joinFriend">
                                             <input type="hidden" name="id_join" :value="ami.id_ami" />
                                             <input type="hidden" name="ami_name" :value="ami.name" />
-                                            <input class="btn btn-primary" type="submit" value="Rejoindre">
+                                            <input :key="component_key" v-if="subscribe == true" class="btn btn-primary" type="submit" value="Rejoindre">
                                         </form>
                                     </div>
                                     <form action="/delFriend">
@@ -84,14 +84,7 @@
     <script>
         window.user = @json($user);
         window.amis = @json($amis);
-        window.game = null;
-        window.typeBomb = null;
         window.id_ami = null;
-        window.component_key = null;
         window.idSession = null;
-        window.messages = null;
-        window.caller = null;
-        window.localUserMedia = null;
-        window.subscribe = null;
     </script>
 @endsection
